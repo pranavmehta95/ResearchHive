@@ -72,9 +72,61 @@ Provide a comprehensive analysis with all required fields. Be specific and cite 
             }
 
     async def analyze_multiple_papers(self, papers: List[Dict[str, Any]], research_question: str) -> List[Dict[str, Any]]:
-        """Analyze multiple papers."""
-        results = []
-        for paper in papers:
-            result = await self.analyze_paper(paper["paper_id"], paper["filename"], research_question)
-            results.append(result)
-        return results
+        """Analyze all papers in a single LLM call (keeps free-tier quota usage low)."""
+        paper_list = "\n".join(
+            f"- paper_id: {p['paper_id']}, filename: {p['filename']}" for p in papers
+        )
+        prompt = f"""
+Analyze EACH of the following papers in the context of the research question:
+"{research_question}"
+
+Papers:
+{paper_list}
+
+For each paper, extract: title, objective, methodology, datasets, models, findings, conclusion.
+Provide a comprehensive analysis per paper with all required fields. Be specific and cite evidence from the papers.
+
+Return a valid JSON array with one object per paper, each with these exact keys:
+{{
+  "paper_id": "string (copy from the list above)",
+  "filename": "string",
+  "title": "string",
+  "objective": "string",
+  "methodology": "string",
+  "datasets": ["string"],
+  "models": ["string"],
+  "findings": ["string"],
+  "conclusion": "string",
+  "evidence_references": ["string"]
+}}
+"""
+        # Search across all papers' chunks (no paper_id filter)
+        response = await self.run(prompt, k=15)
+
+        try:
+            json_str = response
+            if "```json" in response:
+                json_str = response.split("```json")[1].split("```")[0]
+            elif "```" in response:
+                json_str = response.split("```")[1].split("```")[0]
+
+            result = json.loads(json_str.strip())
+            if isinstance(result, list):
+                return result
+            return [result]
+        except json.JSONDecodeError:
+            return [
+                {
+                    "paper_id": p["paper_id"],
+                    "filename": p["filename"],
+                    "title": "Could not parse",
+                    "objective": response[:500] if response else "No response",
+                    "methodology": "Not extracted",
+                    "datasets": [],
+                    "models": [],
+                    "findings": [],
+                    "conclusion": "Not extracted",
+                    "evidence_references": []
+                }
+                for p in papers
+            ]

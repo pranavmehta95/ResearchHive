@@ -6,6 +6,10 @@ import os
 class Settings(BaseSettings):
     GEMINI_API_KEY: str = ""
     GEMINI_MODEL: str = "gemini-flash-latest"
+    # Comma-separated pool of models. Each model has its own free-tier quota,
+    # so spreading agents across models multiplies the daily budget.
+    GEMINI_MODELS: str = "gemini-3.8-flash,gemini-3.7-flash,gemini-3.6-flash,gemini-3.5-flash,gemini-3.5-flash-lite,gemini-3.1-flash-lite,gemini-flash-lite-latest,gemini-3-flash-preview"
+    GEMINI_MIN_INTERVAL: float = 12.0  # seconds between Gemini calls (free tier ~5 RPM)
     HOST: str = "0.0.0.0"
     PORT: int = 8000
     RELOAD: bool = True
@@ -20,6 +24,11 @@ class Settings(BaseSettings):
     @property
     def cors_origins_list(self) -> List[str]:
         return [origin.strip() for origin in self.CORS_ORIGINS.split(",")]
+
+    @property
+    def gemini_models_list(self) -> List[str]:
+        models = [m.strip() for m in self.GEMINI_MODELS.split(",") if m.strip()]
+        return models or [self.GEMINI_MODEL]
 
 
 settings = Settings()

@@ -96,7 +96,7 @@ Citations: {json.dumps(citations, indent=2)[:2000]}
 
 Produce the complete final report as JSON. Remove duplicates, mark uncertain info, create thematic clusters.
 """
-        response = await self.run(prompt)
+        response = await self.run(prompt, k=15)
 
         try:
             json_str = response

@@ -43,7 +43,7 @@ Extract citation metadata for these papers:
 
 Create proper IEEE-style citations. Return JSON array only.
 """
-        response = await self.run(prompt)
+        response = await self.run(prompt, k=12)
 
         try:
             json_str = response

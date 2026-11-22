@@ -62,6 +62,7 @@ class AnalysisResponse(BaseModel):
     started_at: datetime
     updated_at: datetime
     error: Optional[str] = None
+    upload_id: Optional[str] = None
 
 
 class PaperAnalysisResult(BaseModel):
@@ -118,7 +119,8 @@ class AnalysisDetailResponse(BaseModel):
     analysis_id: str
     status: AnalysisStatus
     progress: int
-    report: Optional[FinalReport] = None
+    # LLM-generated report shape varies; keep it as a free-form dict
+    report: Optional[Dict[str, Any]] = None
     error: Optional[str] = None
 
 

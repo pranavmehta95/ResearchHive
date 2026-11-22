@@ -1,0 +1,108 @@
+{
+  "title": "Synthesis of Data-Driven Decision Support, Investor Behavior, and Applied Technical Methodologies",
+  "research_question": "How do diverse technical and behavioral methodologies\u2014ranging from predictive modeling in telecommunications to human-AI interaction frameworks\u2014contribute to decision-making and optimization?",
+  "executive_summary": "This report synthesizes three distinct areas: technical churn prediction, behavioral insights into financial advising, and practical software development. While the provided documents vary significantly in focus\u2014from technical PySpark-based customer churn prediction to behavioral finance and professional qualification profiles\u2014they collectively highlight the increasing reliance on data-driven approaches to solve operational and cognitive challenges. The report identifies that effective modeling relies heavily on data cleaning and feature engineering, while decision-support systems must account for the nuance of human-AI reliance.",
+  "paper_analyses": [
+    {
+      "paper_id": "a97aa635-b267-447d-9e45-97720ad818e4",
+      "filename": "INT315REPORT.pdf",
+      "title": "Telco Customer Churn Prediction (INT315 Project Report)",
+      "objective": "To build an end-to-end data processing, exploratory analysis, and machine learning pipeline using PySpark to predict telecommunications customer churn [INT315REPORT.pdf, Page 8, Para 1].",
+      "methodology": "Preprocessing using Spark SQL for null handling/casting, feature engineering with StringIndexer and OneHotEncoder, and model training using PySpark MLlib Logistic Regression [INT315REPORT.pdf, Page 8, Para 1].",
+      "findings": [
+        "Identified 7,032 usable records after cleaning [INT315REPORT.pdf, Page 8, Para 1].",
+        "Demonstrated the effectiveness of Logistic Regression in classifying churn behavior [INT315REPORT.pdf, Page 10, Para 1]."
+      ]
+    },
+    {
+      "paper_id": "6451f528-bec6-4db0-92c6-4866621ffde5",
+      "filename": "CV_202604301630257528_12313134.pdf",
+      "title": "Resume of Pranav Kumar",
+      "objective": "To document technical projects including AI-driven study platforms and full-stack software development [CV_202604301630257528_12313134 (11).pdf, Page 1, Para 1].",
+      "methodology": "Application of full-stack engineering (React, Node.js) and secure authentication (JWT, bcrypt) [CV_202604301630257528_12313134 (11).pdf, Page 1, Para 1].",
+      "findings": [
+        "Successful integration of AI document summarization in educational workflows [CV_202604301630257528_12313134 (11).pdf, Page 1, Para 1]."
+      ]
+    },
+    {
+      "paper_id": "fd1863c2-5f48-4301-b0bb-154528e39208",
+      "filename": "Sample-Research-Papers-for-Prposed-Research-Journal.pdf",
+      "title": "Review of Financial Advisor and Investor Behavior Literature",
+      "objective": "To survey factors influencing investment decisions and human-AI reliance [Sample-Research-Papers-for-Prposed-Research-Journal.pdf, Page 11, Para 1].",
+      "methodology": "Qualitative and quantitative analysis of investor behavior and NLP application in financial coaching [Sample-Research-Papers-for-Prposed-Research-Journal.pdf, Page 11, Para 1].",
+      "findings": [
+        "Transparency policies in advisory markets may backfire under strategic commitment [Sample-Research-Papers-for-Prposed-Research-Journal.pdf, Page 11, Para 1].",
+        "Introduction of 'Appropriate Reliance' as a key metric for human-AI interaction [Sample-Research-Papers-for-Prposed-Research-Journal.pdf, Page 11, Para 1]."
+      ]
+    }
+  ],
+  "methodology_comparison": [
+    {
+      "dimension": "Data Processing Approach",
+      "comparison": "INT315 employs distributed computing (PySpark) for large-scale tabular data cleaning, whereas the financial literature survey emphasizes qualitative/psychological modeling and behavioral NLP insights."
+    },
+    {
+      "dimension": "Model Evaluation",
+      "comparison": "Machine learning projects (INT315) use objective metrics (Accuracy, ROC-AUC), while behavioral research focuses on conceptual frameworks like 'Appropriate Reliance'."
+    }
+  ],
+  "critiques": [
+    {
+      "paper_id": "a97aa635-b267-447d-9e45-97720ad818e4",
+      "critique": "The technical report is highly focused on implementation but lacks discussion on the sociological implications of churn prediction, such as algorithm bias."
+    },
+    {
+      "paper_id": "fd1863c2-5f48-4301-b0bb-154528e39208",
+      "critique": "The literature summary provides a broad overview but [UNCERTAIN] lacks detailed performance data for the specific models cited in the behavioral studies."
+    }
+  ],
+  "citations": [
+    "[1] Telco Customer Churn Prediction Project Report, INT315, 2026.",
+    "[2] Pranav Kumar, Curriculum Vitae, 2026.",
+    "[3] Various authors, 'Financial Advisor and Investor Behavior Literature Survey', 2016-2025."
+  ],
+  "thematic_clusters": [
+    {
+      "name": "Predictive Modeling & Applied Data Science",
+      "papers": [
+        "a97aa635-b267-447d-9e45-97720ad818e4"
+      ],
+      "description": "Focus on data pipelines, cleaning, and ML implementation for business intelligence.",
+      "key_findings": [
+        "End-to-end processing reduces error in churn classification."
+      ]
+    },
+    {
+      "name": "Human-AI Decision Dynamics",
+      "papers": [
+        "fd1863c2-5f48-4301-b0bb-154528e39208"
+      ],
+      "description": "Exploration of trust, reliance, and transparency in professional advisory services.",
+      "key_findings": [
+        "Blind reliance on AI is suboptimal; humans require 'Appropriate Reliance' metrics."
+      ]
+    }
+  ],
+  "research_gaps": [
+    {
+      "title": "Integration of Behavioral Insights into ML Pipelines",
+      "description": "Current ML pipelines focus on objective data, ignoring the subjective behavioral factors that drive decision-making.",
+      "severity": "medium",
+      "related_papers": [
+        "a97aa635-b267-447d-9e45-97720ad818e4",
+        "fd1863c2-5f48-4301-b0bb-154528e39208"
+      ],
+      "potential_directions": [
+        "Incorporate psychological features into churn models."
+      ]
+    }
+  ],
+  "key_statistics": {
+    "total_papers": 3,
+    "total_citations": 11,
+    "year_range": "2009-2026",
+    "venues": 3,
+    "key_concepts": 6,
+    "methodologies": 4
+  }
+}

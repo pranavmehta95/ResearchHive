@@ -143,6 +143,85 @@ export default function Dashboard() {
 
   const hasResults = displayStatus.status === 'completed' && displayStatus.report
 
+  // Normalize the LLM-generated report into the shape ResultTabs expects.
+  // Field names/types vary between runs, so guard everything.
+  const report = displayStatus.report || {}
+  const toArray = (v) => Array.isArray(v) ? v : (v == null ? [] : [v])
+  const toText = (v) => Array.isArray(v) ? v.join(', ') : (v == null ? '' : String(v))
+  const toNum = (v) => { const n = Number(v); return Number.isFinite(n) ? n : 0 }
+
+  const tabPapers = (uploadedFiles.length > 0 ? uploadedFiles : mockPapers).map(p => ({
+    id: p.id || p.paper_id,
+    title: p.title || p.name || 'Untitled',
+    authors: p.authors || [],
+    venue: p.venue || 'N/A',
+    year: p.year || '',
+    pages: p.pages || 0,
+    size: p.size || '',
+    citations: p.citations || 0,
+    methodology: p.methodology || '',
+    status: p.status,
+  }))
+
+  const tabResults = {
+    overview: {
+      title: report.title || 'Literature Review',
+      researchQuestion: report.research_question || researchQuestion,
+      summary: typeof report.executive_summary === 'string'
+        ? report.executive_summary
+        : JSON.stringify(report.executive_summary || ''),
+      keyStatistics: {
+        totalPapers: toNum(report.key_statistics?.total_papers) || tabPapers.length,
+        totalCitations: toNum(report.key_statistics?.total_citations),
+        yearRange: String(report.key_statistics?.year_range || 'N/A'),
+        venues: toNum(report.key_statistics?.venues),
+        keyConcepts: toNum(report.key_statistics?.key_concepts),
+        methodologies: toNum(report.key_statistics?.methodologies),
+      },
+      themes: toArray(report.thematic_clusters).map(t => ({
+        name: t?.name || t?.theme || 'Theme',
+        description: t?.description || '',
+        papers: toArray(t?.papers),
+      }))
+    },
+    paperInsights: toArray(report.paper_analyses).map(p => ({
+      paperId: p?.paper_id,
+      insights: [
+        { type: 'innovation', text: toText(p?.objective) || 'No objective extracted', impact: 'high' },
+        { type: 'finding', text: toText(p?.findings) || toText(p?.methodology) || 'No findings extracted', impact: 'high' },
+        { type: 'limitation', text: toText(p?.conclusion) || toText(p?.methodology) || '', impact: 'medium' }
+      ]
+    })),
+    comparison: {
+      dimensions: toArray(report.methodology_comparison).map(d => ({
+        name: d?.dimension || d?.name || 'Dimension',
+        papers: d?.papers && typeof d.papers === 'object' ? d.papers : {}
+      })),
+      radarData: mockResults.comparison.radarData
+    },
+    gaps: toArray(report.research_gaps).map((g, i) => ({
+      id: g?.id || g?.title || `gap-${i}`,
+      title: g?.title || 'Research gap',
+      description: g?.description || '',
+      severity: g?.severity || 'medium',
+      potentialDirections: toArray(g?.potential_directions)
+    })),
+    references: toArray(report.citations).map((c, i) => {
+      if (typeof c === 'string') {
+        return { id: `ref-${i}`, title: c, authors: '', venue: '', year: '', citations: 0, url: '#' }
+      }
+      return {
+        id: c?.paper_id || c?.id || `ref-${i}`,
+        title: c?.title || c?.ieee_citation || 'Untitled',
+        authors: toText(c?.authors),
+        venue: c?.venue || '',
+        year: c?.year || '',
+        citations: 0,
+        url: '#'
+      }
+    })
+  }
+
   return (
     <div className="space-y-8">
       {error && (
@@ -301,57 +380,10 @@ export default function Dashboard() {
                 <h3 className="text-lg font-semibold text-slate-100">Analysis Results</h3>
               </div>
               <ResultTabs
-                results={{
-                  overview: {
-                    title: displayStatus.report.title,
-                    researchQuestion: displayStatus.report.research_question,
-                    summary: displayStatus.report.executive_summary,
-                    keyStatistics: {
-                      totalPapers: displayStatus.report.key_statistics?.total_papers || 0,
-                      totalCitations: displayStatus.report.key_statistics?.total_citations || 0,
-                      yearRange: displayStatus.report.key_statistics?.year_range || 'N/A',
-                      venues: displayStatus.report.key_statistics?.venues || 0,
-                      keyConcepts: displayStatus.report.key_statistics?.key_concepts || 0,
-                      methodologies: displayStatus.report.key_statistics?.methodologies || 0,
-                    },
-                    themes: displayStatus.report.thematic_clusters.map(t => ({
-                      name: t.name,
-                      description: t.description,
-                      papers: t.papers
-                    }))
-                  },
-                  paperInsights: displayStatus.report.paper_analyses.map(p => ({
-                    paperId: p.paper_id,
-                    insights: [
-                      { type: 'innovation', text: p.objective, impact: 'high' },
-                      { type: 'finding', text: p.findings.join(', '), impact: 'high' },
-                      { type: 'limitation', text: p.conclusion, impact: 'medium' }
-                    ]
-                  })),
-                  comparison: {
-                    dimensions: displayStatus.report.methodology_comparison,
-                    radarData: mockResults.comparison.radarData // Keep mock for now or implement dynamic
-                  },
-                  gaps: displayStatus.report.research_gaps.map(g => ({
-                    id: g.title,
-                    title: g.title,
-                    description: g.description,
-                    severity: g.severity,
-                    potentialDirections: g.potential_directions
-                  })),
-                  references: displayStatus.report.citations.map(c => ({
-                    id: c.paper_id,
-                    title: c.title,
-                    authors: c.authors.join(', '),
-                    venue: c.venue,
-                    year: c.year,
-                    citations: 0,
-                    url: '#'
-                  }))
-                }}
+                results={tabResults}
                 activeTab={activeTab}
                 onTabChange={setActiveTab}
-                papers={uploadedFiles.length > 0 ? uploadedFiles : mockPapers}
+                papers={tabPapers}
               />
             </motion.div>
           )}

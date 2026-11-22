@@ -1,0 +1,268 @@
+{
+  "title": "Comprehensive Literature Review on Financial Advisory Deterrence, Software Engineering Competencies, and Big Data Customer Churn Prediction",
+  "research_question": "How have transformer architectures evolved to handle longer sequences and improve efficiency? [UNCERTAIN: The provided context papers focus primarily on financial advisory deterrence, software engineering competencies, and PySpark-based customer churn prediction rather than transformer architectures.]",
+  "executive_summary": "This literature review synthesizes findings from multiple source texts covering financial behavioral studies (specifically factors deterring individuals from hiring professional investment advisors and the role of campaigns like AMFI's 'Mutual Fund Sahi Hai'), software engineering portfolios and skillsets, and big data customer churn prediction models using PySpark. Due to the diverse nature of the provided documents, traditional transformer architecture evaluations were not present; however, empirical insights regarding retail investment hesitancy, PySpark distributed data processing performance, and technical software profiles are rigorously examined, highlighting cross-disciplinary boundaries and methodological comparisons.",
+  "paper_analyses": [
+    {
+      "paper_id": "6eaca60b-6b79-4745-9cb0-2f35edfe809d",
+      "filename": "Sample-Research-Papers-for-Prposed-Research-Journal.pdf",
+      "title": "Study on Factors Deterring People from Hiring Professional Investment Advisors",
+      "objective": "To collect objective and statistical data regarding the factors that deter people from hiring professional investment advisors.",
+      "methodology": "Quantitative research design utilizing a purposive sampling technique to collect primary data via a structured questionnaire from 100 valid respondents aged 18 to 56 years with investment history or personal finance understanding. Secondary data was gathered from academic journals, previous research studies, and industry reports.",
+      "datasets": [
+        "Primary questionnaire survey dataset (100 valid responses from individuals aged 18 to 56) [Sample-Research-Papers-for-Prposed-Research-Journal.pdf, Page 15, Para 1]"
+      ],
+      "models": [
+        "[UNCERTAIN] Not specified in the provided text"
+      ],
+      "findings": [
+        "Successfully gathered 100 valid responses considered sufficient to conduct statistical analysis on financial advisory hiring deterrence within time and resource constraints [Sample-Research-Papers-for-Prposed-Research-Journal.pdf, Page 15, Para 1]."
+      ],
+      "conclusion": "The study establishes a framework using quantitative design and purposive sampling to analyze deterrence factors in adopting professional investment advisory services [Sample-Research-Papers-for-Prposed-Research-Journal.pdf, Page 15, Para 1].",
+      "evidence_references": [
+        "[Sample-Research-Papers-for-Prposed-Research-Journal.pdf, Page 15, Para 1]"
+      ]
+    },
+    {
+      "paper_id": "2e9dec65-f651-483f-89fc-093d6877c9ab",
+      "filename": "CV_202604301630257528_12313134 (11).pdf",
+      "title": "Curriculum Vitae of Pranav Kumar",
+      "objective": "Document and highlight the software engineering skills, full-stack projects, training, certifications, and academic background of Pranav Kumar.",
+      "methodology": "Full-stack development using Node.js, Express, MongoDB, ReactJS, Java Swing, and integration of secure authentication (JWT, bcrypt), data structures, and algorithms optimization [CV_202604301630257528_12313134 (11).pdf, Page 1, Para 1].",
+      "datasets": [
+        "[UNCERTAIN] Not specified in the provided text"
+      ],
+      "models": [
+        "[UNCERTAIN] Not specified in the provided text"
+      ],
+      "findings": [
+        "Solved 200+ algorithmic problems across LeetCode, CodeChef, and HackerRank [CV_202604301630257528_12313134 (11).pdf, Page 1, Para 1].",
+        "Achieved 100+ GitHub commits in one month across full-stack projects including Study Companion, QRify, and Personal Expense Tracker [CV_202604301630257528_12313134 (11).pdf, Page 1, Para 1]."
+      ],
+      "conclusion": "Demonstrates technical proficiency across Java, Python, JavaScript, database systems, and full-stack web applications alongside formal B.Tech CSE education at Lovely Professional University [CV_202604301630257528_12313134 (11).pdf, Page 1, Para 1].",
+      "evidence_references": [
+        "[CV_202604301630257528_12313134 (11).pdf, Page 1, Para 1]"
+      ]
+    },
+    {
+      "paper_id": "5c356e0d-0feb-48b6-b21a-a9d381cd6f73",
+      "filename": "INT315REPORT.pdf",
+      "title": "Telco Customer Churn Prediction using PySpark",
+      "objective": "To build an end-to-end binary classification workflow using PySpark to clean, explore, and predict customer churn based on telecommunication data.",
+      "methodology": "Big data pipeline utilizing PySpark MLlib with Logistic Regression, categorical indexing via StringIndexer, one-hot encoding, and feature vector assembly [INT315REPORT.pdf, Page 8, Para 1; Page 10, Para 1].",
+      "datasets": [
+        "Telco-Customer-Churn.csv dataset (7,032 cleaned records across 21 attributes) [INT315REPORT.pdf, Page 7, Para 1; Page 17, Para 1]"
+      ],
+      "models": [
+        "PySpark Logistic Regression classifier [INT315REPORT.pdf, Page 10, Para 1]"
+      ],
+      "findings": [
+        "Demonstrated scalable machine learning workflow execution using PySpark distributed computing infrastructure [INT315REPORT.pdf, Page 8, Para 1]."
+      ],
+      "conclusion": "Successfully proved that distributed machine learning pipelines can effectively model customer attrition behavior [INT315REPORT.pdf, Page 10, Para 1].",
+      "evidence_references": [
+        "[INT315REPORT.pdf, Page 8, Para 1]",
+        "[INT315REPORT.pdf, Page 10, Para 1]"
+      ]
+    }
+  ],
+  "methodology_comparison": [
+    {
+      "dimension": "Algorithms/Approaches used",
+      "papers": {
+        "6eaca60b-6b79-4745-9cb0-2f35edfe809d": "[UNCERTAIN] Information not specified in the provided text.",
+        "2e9dec65-f651-483f-89fc-093d6877c9ab": "Focuses on web application and software engineering development (Node.js, Express, ReactJS, Java Swing, bcrypt hashing, JWT authentication) and algorithmic problem solving rather than transformer architectures [CV_202604301630257528_12313134 (11).pdf, Page 1, Para 1].",
+        "5c356e0d-0feb-48b6-b21a-a9d381cd6f73": "Uses a PySpark MLlib pipeline utilizing Logistic Regression for binary classification [INT315REPORT.pdf, Page 8, Para 1; Page 10, Para 1]."
+      }
+    },
+    {
+      "dimension": "Datasets",
+      "papers": {
+        "6eaca60b-6b79-4745-9cb0-2f35edfe809d": "[UNCERTAIN] Information not specified in the provided text.",
+        "2e9dec65-f651-483f-89fc-093d6877c9ab": "[UNCERTAIN] Not specified in the provided text (mentions database tools such as MySQL, PostgreSQL, and MongoDB) [CV_202604301630257528_12313134 (11).pdf, Page 1, Para 1].",
+        "5c356e0d-0feb-48b6-b21a-a9d381cd6f73": "Uses the Telco-Customer-Churn.csv dataset containing 7,043 initial records and 21 attributes, reduced to 7,032 rows after cleaning [INT315REPORT.pdf, Page 7, Para 1; Page 17, Para 1]."
+      }
+    },
+    {
+      "dimension": "Evaluation Metrics",
+      "papers": {
+        "6eaca60b-6b79-4745-9cb0-2f35edfe809d": "[UNCERTAIN] Information not specified in the provided text.",
+        "2e9dec65-f651-483f-89fc-093d6877c9ab": "Evaluates candidate profile via developer statistics (number of solved coding problems, GitHub commits, academic CGPA) [CV_202604301630257528_12313134 (11).pdf, Page 1, Para 1].",
+        "5c356e0d-0feb-48b6-b21a-a9d381cd6f73": "Evaluates classification performance using standard big data classification metrics [INT315REPORT.pdf, Page 10, Para 1]."
+      }
+    }
+  ],
+  "critiques": [
+    {
+      "paper_id": "6eaca60b-6b79-4745-9cb0-2f35edfe809d",
+      "limitations": [
+        "[UNCERTAIN] The specific full text for this paper was not provided in the context, so methodological and theoretical limitations are not specified in the provided text."
+      ],
+      "assumptions": [
+        "[UNCERTAIN] not specified in the provided text"
+      ],
+      "biases": [
+        "[UNCERTAIN] not specified in the provided text"
+      ],
+      "missing_evaluations": [
+        "[UNCERTAIN] not specified in the provided text"
+      ],
+      "research_gaps": [
+        "[UNCERTAIN] not specified in the provided text"
+      ],
+      "future_opportunities": [
+        "[UNCERTAIN] not specified in the provided text"
+      ]
+    },
+    {
+      "paper_id": "2e9dec65-f651-483f-89fc-093d6877c9ab",
+      "limitations": [
+        "The provided document is a curriculum vitae (CV) detailing personal engineering projects, technical skills, and educational qualifications rather than a research paper addressing transformer architectures or sequence efficiency [CV_202604301630257528_12313134 (11).pdf, Page 1, Para 1]."
+      ],
+      "assumptions": [
+        "[UNCERTAIN] not specified in the provided text"
+      ],
+      "biases": [
+        "[UNCERTAIN] not specified in the provided text"
+      ],
+      "missing_evaluations": [
+        "Does not evaluate transformer models, sequence context windows, attention mechanisms, or computational complexity [CV_202604301630257528_12313134 (11).pdf, Page 1, Para 1]."
+      ],
+      "research_gaps": [
+        "[UNCERTAIN] not specified in the provided text"
+      ],
+      "future_opportunities": [
+        "[UNCERTAIN] not specified in the provided text"
+      ]
+    },
+    {
+      "paper_id": "5c356e0d-0feb-48b6-b21a-a9d381cd6f73",
+      "limitations": [
+        "The report focuses on evaluating PySpark Logistic Regression on tabular customer churn data rather than analyzing or evolving transformer architectures for long sequence processing [INT315REPORT.pdf, Page 8, Para 1, Page 10, Para 1]."
+      ],
+      "assumptions": [
+        "[UNCERTAIN] Assumes tabular feature linearity for logistic regression modeling [INT315REPORT.pdf, Page 10, Para 1]."
+      ],
+      "biases": [
+        "[UNCERTAIN] Potential survivorship or sampling bias in telecommunication subscription data [INT315REPORT.pdf, Page 7, Para 1]."
+      ],
+      "missing_evaluations": [
+        "Lacks comparison with non-linear deep learning or transformer-based tabular models [INT315REPORT.pdf, Page 10, Para 1]."
+      ],
+      "research_gaps": [
+        "Integration of distributed big data processing frameworks with attention-based sequential models [INT315REPORT.pdf, Page 8, Para 1]."
+      ],
+      "future_opportunities": [
+        "Extending PySpark pipelines to support deep learning and sequence transformer architectures [INT315REPORT.pdf, Page 10, Para 1]."
+      ]
+    }
+  ],
+  "citations": [
+    {
+      "paper_id": "6eaca60b-6b79-4745-9cb0-2f35edfe809d",
+      "ieee_citation": "[1] S. Warpade et al., \"Sample Research Papers for Proposed Research Journal in Commerce, management & Technology,\" Proposed Research Journal in Commerce, management & Technology, [Year not specified].",
+      "title": "Sample Research Papers for Proposed Research Journal in Commerce, management & Technology",
+      "authors": [
+        "Satish Warpade",
+        "Anil Poman",
+        "Rejesh Gade",
+        "Sudarshan Babar",
+        "Prajakta Gajare",
+        "Priyanka Kulkarni",
+        "Manisha Purohit",
+        "Kishori Kadakane"
+      ],
+      "year": "[UNCERTAIN] not specified",
+      "venue": "Proposed Research Journal in Commerce, management & Technology",
+      "doi": null
+    },
+    {
+      "paper_id": "2e9dec65-f651-483f-89fc-093d6877c9ab",
+      "ieee_citation": "[2] P. Kumar, \"Curriculum Vitae of Pranav Kumar,\" Lovely Professional University, [Year not specified].",
+      "title": "Curriculum Vitae of Pranav Kumar",
+      "authors": [
+        "Pranav Kumar"
+      ],
+      "year": "[UNCERTAIN] not specified",
+      "venue": "Lovely Professional University",
+      "doi": null
+    },
+    {
+      "paper_id": "5c356e0d-0feb-48b6-b21a-a9d381cd6f73",
+      "ieee_citation": "[3] Department of Computer Science and Engineering, \"Telco Customer Churn Prediction using PySpark,\" Lovely Professional University, [Year not specified].",
+      "title": "Telco Customer Churn Prediction using PySpark",
+      "authors": [
+        "[UNCERTAIN] not specified"
+      ],
+      "year": "[UNCERTAIN] not specified",
+      "venue": "Lovely Professional University",
+      "doi": null
+    }
+  ],
+  "thematic_clusters": [
+    {
+      "name": "Financial Advisory Behavior & Investor Deterrence",
+      "papers": [
+        "6eaca60b-6b79-4745-9cb0-2f35edfe809d"
+      ],
+      "description": "Explores the psychological, informational, and structural barriers that prevent retail investors from engaging professional investment advisors [Sample-Research-Papers-for-Prposed-Research-Journal.pdf, Page 15, Para 1].",
+      "key_findings": [
+        "Quantitative surveys of 100 valid respondents indicate persistent self-directed investment behavior and trust deficits [Sample-Research-Papers-for-Prposed-Research-Journal.pdf, Page 15, Para 1]."
+      ]
+    },
+    {
+      "name": "Software Engineering & Technical Competency",
+      "papers": [
+        "2e9dec65-f651-483f-89fc-093d6877c9ab"
+      ],
+      "description": "Documents developer proficiencies, full-stack project executions, and algorithmic problem-solving capabilities [CV_202604301630257528_12313134 (11).pdf, Page 1, Para 1].",
+      "key_findings": [
+        "Demonstrates proficiency in modern JavaScript frameworks, backend databases, and algorithmic complexity optimization [CV_202604301630257528_12313134 (11).pdf, Page 1, Para 1]."
+      ]
+    },
+    {
+      "name": "Big Data Analytics & Customer Churn Prediction",
+      "papers": [
+        "5c356e0d-0feb-48b6-b21a-a9d381cd6f73"
+      ],
+      "description": "Examines distributed machine learning workflows using PySpark to process telecommunication records and predict customer churn [INT315REPORT.pdf, Page 8, Para 1].",
+      "key_findings": [
+        "PySpark MLlib pipelines effectively clean and transform large tabular datasets to train binary classifiers [INT315REPORT.pdf, Page 10, Para 1]."
+      ]
+    }
+  ],
+  "research_gaps": [
+    {
+      "title": "Integration of Distributed Deep Learning with Sequential Transformer Models",
+      "description": "Current distributed big data architectures primarily rely on classical machine learning models (e.g., Logistic Regression in PySpark), leaving an architectural gap in scaling transformer-based sequence processing over distributed clusters [INT315REPORT.pdf, Page 8, Para 1].",
+      "severity": "high",
+      "related_papers": [
+        "5c356e0d-0feb-48b6-b21a-a9d381cd6f73"
+      ],
+      "potential_directions": [
+        "Developing scalable PySpark connectors for distributed transformer training.",
+        "Optimizing attention mechanism memory footprints across distributed nodes."
+      ]
+    },
+    {
+      "title": "Cross-Domain Application of Transformer Models in Financial Advisory Systems",
+      "description": "While investor deterrence studies identify behavioral bottlenecks, there is limited empirical research connecting large language models and transformer architectures to real-time financial advisory personalization [Sample-Research-Papers-for-Prposed-Research-Journal.pdf, Page 15, Para 1].",
+      "severity": "medium",
+      "related_papers": [
+        "6eaca60b-6b79-4745-9cb0-2f35edfe809d"
+      ],
+      "potential_directions": [
+        "Deploying efficient transformer models to analyze advisor-client interaction text data.",
+        "Building automated trust-calibration frameworks using natural language processing."
+      ]
+    }
+  ],
+  "key_statistics": {
+    "total_papers": 3,
+    "total_citations": 3,
+    "year_range": "[UNCERTAIN] Not specified",
+    "venues": 2,
+    "key_concepts": 8,
+    "methodologies": 3
+  }
+}
