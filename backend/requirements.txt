@@ -9,4 +9,4 @@ pydantic==2.9.2
 pydantic-settings==2.5.2
 numpy==1.26.4
 python-multipart==0.0.12
-naiofiles==23.2.1
+aiofiles==23.2.1
