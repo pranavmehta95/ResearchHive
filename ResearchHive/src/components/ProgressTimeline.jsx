@@ -16,9 +16,9 @@ const statusIcons = {
 }
 
 const statusColors = {
-  pending: 'text-slate-500 bg-slate-500/10',
-  running: 'text-blue-400 bg-blue-500/10',
-  completed: 'text-green-400 bg-green-500/10',
+  pending: 'text-zinc-500 bg-white/5',
+  running: 'text-zinc-200 bg-white/10',
+  completed: 'text-emerald-400 bg-emerald-500/10',
   error: 'text-red-400 bg-red-500/10',
 }
 
@@ -27,7 +27,7 @@ export default function ProgressTimeline({ timeline }) {
     <div className="glass-strong rounded-2xl p-6 border border-white/5">
       <h2 className="text-lg font-semibold text-slate-100 mb-6">Analysis Progress</h2>
       <div className="relative">
-        <div className="absolute left-6 top-0 bottom-0 w-0.5 bg-gradient-to-b from-blue-500/50 to-transparent" />
+        <div className="absolute left-6 top-0 bottom-0 w-0.5 bg-white/10" />
         {timeline.map((item, index) => {
           const Icon = statusIcons[item.status] || Clock
           const statusClass = statusColors[item.status] || statusColors.pending
@@ -42,8 +42,8 @@ export default function ProgressTimeline({ timeline }) {
             >
               <div className={cn(
                 'relative flex h-12 w-12 shrink-0 items-center justify-center rounded-full z-10 transition-all duration-300',
-                item.status === 'completed' && 'bg-green-500/20 text-green-400',
-                item.status === 'running' && 'bg-blue-500/20 text-blue-400',
+                item.status === 'completed' && 'bg-emerald-500/20 text-emerald-400',
+                item.status === 'running' && 'bg-white/10 text-zinc-200',
                 item.status === 'pending' && 'bg-white/5 text-slate-500',
                 item.status === 'error' && 'bg-red-500/20 text-red-400'
               )}>

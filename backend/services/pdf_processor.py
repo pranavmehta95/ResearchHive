@@ -1,7 +1,44 @@
-import os
+import hashlib
 from pypdf import PdfReader
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Optional
 import uuid
+
+from services.database import get_doc_cache, set_doc_cache
+
+
+def compute_file_hash(file_path: str) -> str:
+    """Compute SHA-256 hash of file contents (stable across renames/re-uploads)."""
+    sha256 = hashlib.sha256()
+    with open(file_path, 'rb') as f:
+        for block in iter(lambda: f.read(8192), b''):
+            sha256.update(block)
+    return sha256.hexdigest()
+
+
+def load_cached_document(file_hash: str) -> Optional[Dict[str, Any]]:
+    """Load cached document (metadata + chunks) by content hash."""
+    return get_doc_cache(file_hash)
+
+
+def save_cached_document(file_hash: str, metadata: Dict[str, Any], chunks: List[Dict[str, Any]]):
+    """Persist extracted document data permanently under its content hash."""
+    set_doc_cache(file_hash, {"metadata": metadata, "chunks": chunks})
+
+
+def get_cached_or_extract(file_path: str) -> Dict[str, Any]:
+    """
+    Return cached {'metadata': ..., 'chunks': ...} for a PDF.
+    On first hit, extracts and caches permanently; later hits are served from cache.
+    """
+    file_hash = compute_file_hash(file_path)
+    cached = load_cached_document(file_hash)
+    if cached:
+        return cached
+
+    metadata = get_pdf_metadata(file_path)
+    chunks = extract_text_from_pdf(file_path)
+    save_cached_document(file_hash, metadata, chunks)
+    return {"metadata": metadata, "chunks": chunks}
 
 
 def extract_text_from_pdf(file_path: str) -> List[Dict[str, Any]]:

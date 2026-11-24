@@ -132,3 +132,14 @@ class PaperMetadata(BaseModel):
     size: str
     upload_time: datetime
     status: PaperStatus
+
+
+class RegisterRequest(BaseModel):
+    username: str = Field(min_length=3, max_length=50)
+    email: str
+    password: str = Field(min_length=6)
+
+
+class LoginRequest(BaseModel):
+    login: str  # username or email
+    password: str

@@ -10,8 +10,10 @@ import {
   Command,
 } from 'lucide-react'
 import { useState, useRef, useEffect } from 'react'
+import { useAuth } from '../context/AuthContext'
 
 export default function Header() {
+  const { user, logout } = useAuth()
   const [userMenuOpen, setUserMenuOpen] = useState(false)
   const [searchOpen, setSearchOpen] = useState(false)
   const userMenuRef = useRef(null)
@@ -45,8 +47,8 @@ export default function Header() {
               className={cn(
                 'w-full h-10 pl-10 pr-10 rounded-xl glass-strong border border-white/5',
                 'text-sm text-slate-100 placeholder:text-slate-500',
-                'focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-transparent',
-                searchOpen && 'ring-2 ring-blue-500/30'
+                'focus:outline-none focus:ring-2 focus:ring-white/20 focus:border-transparent',
+                searchOpen && 'ring-2 ring-white/20'
               )}
               onFocus={() => setSearchOpen(true)}
               onBlur={() => setTimeout(() => setSearchOpen(false), 100)}
@@ -85,29 +87,23 @@ export default function Header() {
               onClick={() => setUserMenuOpen(!userMenuOpen)}
               className="flex items-center gap-2 rounded-lg p-1.5 hover:bg-white/5 transition-colors"
             >
-              <div className="h-8 w-8 rounded-full bg-gradient-to-br from-blue-500 to-violet-600 flex items-center justify-center">
-                <User className="h-4 w-4 text-white" />
+              <div className="h-8 w-8 rounded-full bg-zinc-100 flex items-center justify-center">
+                <User className="h-4 w-4 text-zinc-900" />
               </div>
-              <span className="hidden sm:block text-sm font-medium text-slate-200">Researcher</span>
+              <span className="hidden sm:block text-sm font-medium text-slate-200">{user?.username || 'Researcher'}</span>
               <ChevronDown className="h-4 w-4 text-slate-500 hidden sm:block" />
             </button>
 
             {userMenuOpen && (
               <div className="absolute right-0 mt-2 w-48 glass-strong rounded-xl py-1 border border-white/5 shadow-2xl animate-slide-down">
                 <div className="px-3 py-2 border-b border-white/5">
-                  <p className="text-sm font-medium text-slate-200">Dr. Sarah Chen</p>
-                  <p className="text-xs text-slate-500">sarah.chen@university.edu</p>
+                  <p className="text-sm font-medium text-slate-200">{user?.username}</p>
+                  <p className="text-xs text-slate-500">{user?.email}</p>
                 </div>
-                <button className="flex w-full items-center gap-2 px-3 py-2 text-sm text-slate-300 hover:bg-white/5 hover:text-white transition-colors">
-                  <User className="h-4 w-4" />
-                  Profile
-                </button>
-                <button className="flex w-full items-center gap-2 px-3 py-2 text-sm text-slate-300 hover:bg-white/5 hover:text-white transition-colors">
-                  <Moon className="h-4 w-4" />
-                  Appearance
-                </button>
-                <hr className="my-1 border-white/5" />
-                <button className="flex w-full items-center gap-2 px-3 py-2 text-sm text-red-400 hover:bg-red-500/10 transition-colors">
+                <button
+                  onClick={() => { setUserMenuOpen(false); logout() }}
+                  className="flex w-full items-center gap-2 px-3 py-2 text-sm text-red-400 hover:bg-red-500/10 transition-colors"
+                >
                   <LogOut className="h-4 w-4" />
                   Sign Out
                 </button>

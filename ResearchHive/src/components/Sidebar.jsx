@@ -34,8 +34,8 @@ export default function Sidebar() {
     >
       <div className="glass-strong flex h-16 items-center justify-between px-4">
         <div className="flex items-center gap-2">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-blue-500 to-violet-600 shadow-lg shadow-blue-500/30">
-            <Brain className="h-5 w-5 text-white" />
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-zinc-100">
+            <Brain className="h-5 w-5 text-zinc-900" />
           </div>
           {!collapsed && (
             <span className="text-lg font-bold tracking-tight text-gradient">ResearchHive</span>
@@ -63,19 +63,19 @@ export default function Sidebar() {
               className={cn(
                 'group flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all',
                 isActive
-                  ? 'bg-gradient-to-r from-blue-500/20 to-violet-500/20 text-white shadow-lg shadow-blue-500/10'
-                  : 'text-slate-400 hover:bg-white/5 hover:text-slate-200'
+                  ? 'bg-white/10 text-white'
+                  : 'text-zinc-400 hover:bg-white/5 hover:text-zinc-200'
               )}
             >
               <Icon
                 className={cn(
                   'h-5 w-5 shrink-0 transition-colors',
-                  isActive ? 'text-blue-400' : 'text-slate-500 group-hover:text-slate-300'
+                  isActive ? 'text-zinc-100' : 'text-zinc-500 group-hover:text-zinc-300'
                 )}
               />
               {!collapsed && <span>{item.name}</span>}
               {isActive && !collapsed && (
-                <div className="ml-auto h-1.5 w-1.5 rounded-full bg-blue-400" />
+                <div className="ml-auto h-1.5 w-1.5 rounded-full bg-zinc-100" />
               )}
             </Link>
           )
@@ -85,8 +85,8 @@ export default function Sidebar() {
       <div className="border-t border-white/5 p-3">
         <div className="glass rounded-xl p-3">
           <div className="flex items-center gap-2">
-            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-cyan-500 to-blue-500">
-              <Sparkles className="h-4 w-4 text-white" />
+            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-white/10">
+              <Sparkles className="h-4 w-4 text-zinc-300" />
             </div>
             {!collapsed && (
               <div className="min-w-0">

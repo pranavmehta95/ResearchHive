@@ -46,7 +46,7 @@ export default function ResultTabs({ results, activeTab, onTabChange, papers }) 
                 className={cn(
                   'flex items-center gap-2 px-4 py-3 text-sm font-medium border-b-2 transition-all whitespace-nowrap',
                   isActive
-                    ? 'border-blue-500 text-blue-400 bg-blue-500/10'
+                    ? 'border-zinc-100 text-zinc-100 bg-white/5'
                     : 'border-transparent text-slate-400 hover:text-slate-200 hover:border-white/10'
                 )}
               >
@@ -91,7 +91,7 @@ function OverviewTab({ overview, papers }) {
         <div className="flex items-start justify-between gap-4">
           <div>
             <div className="flex items-center gap-2 mb-2">
-              <span className="px-3 py-1 rounded-full text-xs font-medium bg-blue-500/20 text-blue-400">
+              <span className="px-3 py-1 rounded-full text-xs font-medium bg-white/10 text-zinc-300">
                 Literature Review Summary
               </span>
             </div>
@@ -134,7 +134,7 @@ function OverviewTab({ overview, papers }) {
           {overview.themes.map((theme, idx) => (
             <div key={idx} className="glass rounded-xl p-4 border border-white/5">
               <div className="flex items-center gap-2 mb-2">
-                <div className="h-2 w-2 rounded-full bg-blue-400" />
+                <div className="h-2 w-2 rounded-full bg-zinc-300" />
                 <h3 className="font-semibold text-slate-200 text-sm">{theme.name}</h3>
               </div>
               <p className="text-xs text-slate-400 mb-3">{theme.description}</p>
@@ -172,7 +172,7 @@ function PaperInsightsTab({ insights, papers }) {
           <div key={item.paperId} className="glass-strong rounded-2xl p-6 border border-white/5">
             <div className="flex items-start justify-between gap-4 mb-4">
               <div>
-                <span className="px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-500/20 text-blue-400 mb-2 inline-block">
+                <span className="px-2.5 py-0.5 rounded-full text-xs font-medium bg-white/10 text-zinc-300 mb-2 inline-block">
                   {paper.venue} ({paper.year})
                 </span>
                 <h3 className="text-xl font-bold text-slate-100">{paper.title}</h3>
@@ -190,8 +190,8 @@ function PaperInsightsTab({ insights, papers }) {
                 <div key={idx} className="flex items-start gap-3 p-3 rounded-xl bg-white/5 border border-white/5 text-sm">
                   <span className={cn(
                     'px-2 py-0.5 rounded text-[10px] font-semibold uppercase tracking-wider shrink-0 mt-0.5',
-                    insight.type === 'innovation' && 'bg-violet-500/20 text-violet-400',
-                    insight.type === 'finding' && 'bg-blue-500/20 text-blue-400',
+                    insight.type === 'innovation' && 'bg-white/10 text-zinc-300',
+                    insight.type === 'finding' && 'bg-white/10 text-zinc-300',
                     insight.type === 'limitation' && 'bg-amber-500/20 text-amber-400'
                   )}>
                     {insight.type}
@@ -231,9 +231,9 @@ function ComparisonTab({ comparison, papers }) {
               <PolarGrid stroke="rgba(255,255,255,0.1)" />
               <PolarAngleAxis dataKey="subject" stroke="#94a3b8" tick={{ fill: '#94a3b8', fontSize: 11 }} />
               <PolarRadiusAxis stroke="rgba(255,255,255,0.1)" />
-              <Radar name="Innovation" dataKey="Innovation" stroke="#8b5cf6" fill="#8b5cf6" fillOpacity={0.3} />
-              <Radar name="Scalability" dataKey="Scalability" stroke="#3b82f6" fill="#3b82f6" fillOpacity={0.3} />
-              <Radar name="Efficiency" dataKey="Efficiency" stroke="#06b6d4" fill="#06b6d4" fillOpacity={0.3} />
+              <Radar name="Innovation" dataKey="Innovation" stroke="#d4d4d8" fill="#d4d4d8" fillOpacity={0.3} />
+              <Radar name="Scalability" dataKey="Scalability" stroke="#a1a1aa" fill="#a1a1aa" fillOpacity={0.3} />
+              <Radar name="Efficiency" dataKey="Efficiency" stroke="#52525b" fill="#52525b" fillOpacity={0.3} />
               <Tooltip
                 contentStyle={{ background: '#0f172a', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '0.75rem', color: '#fff' }}
               />
@@ -307,7 +307,7 @@ function ResearchGapsTab({ gaps, papers }) {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
               {gap.potentialDirections.map((dir, i) => (
                 <div key={i} className="flex items-center gap-2 p-2.5 rounded-xl bg-white/5 text-xs text-slate-300">
-                  <ChevronRight className="h-3.5 w-3.5 text-blue-400 shrink-0" />
+                  <ChevronRight className="h-3.5 w-3.5 text-zinc-300 shrink-0" />
                   <span>{dir}</span>
                 </div>
               ))}
@@ -342,7 +342,7 @@ function ReferencesTab({ references }) {
             href={ref.url}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center gap-1.5 px-3 py-2 rounded-xl glass text-xs text-blue-400 hover:text-blue-300 hover:bg-white/10 transition-colors shrink-0"
+            className="flex items-center gap-1.5 px-3 py-2 rounded-xl glass text-xs text-zinc-300 hover:text-white hover:bg-white/10 transition-colors shrink-0"
           >
             <span>Read Paper</span>
             <ExternalLink className="h-3.5 w-3.5" />

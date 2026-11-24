@@ -1,10 +1,26 @@
 import { Outlet } from 'react-router-dom'
-import { cn } from '../utils/cn'
 import Sidebar from './Sidebar'
 import Header from './Header'
+import Login from '../pages/Login'
+import { AuthProvider, useAuth } from '../context/AuthContext'
 import { motion } from 'framer-motion'
+import { Loader2 } from 'lucide-react'
 
-export default function Layout() {
+function Shell() {
+  const { user, loading } = useAuth()
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-[#141416] flex items-center justify-center">
+        <Loader2 className="h-6 w-6 animate-spin text-zinc-400" />
+      </div>
+    )
+  }
+
+  if (!user) {
+    return <Login />
+  }
+
   return (
     <div className="min-h-screen bg-gradient-premium">
       <Sidebar />
@@ -22,5 +38,13 @@ export default function Layout() {
         </main>
       </div>
     </div>
+  )
+}
+
+export default function Layout() {
+  return (
+    <AuthProvider>
+      <Shell />
+    </AuthProvider>
   )
 }

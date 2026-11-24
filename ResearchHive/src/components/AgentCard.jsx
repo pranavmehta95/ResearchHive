@@ -21,9 +21,9 @@ const agentIcons = {
 }
 
 const statusStyles = {
-  pending: 'text-slate-500 bg-slate-500/10',
-  running: 'text-blue-400 bg-blue-500/10',
-  completed: 'text-green-400 bg-green-500/10',
+  pending: 'text-zinc-500 bg-white/5',
+  running: 'text-zinc-200 bg-white/10',
+  completed: 'text-emerald-400 bg-emerald-500/10',
   error: 'text-red-400 bg-red-500/10',
 }
 
@@ -48,20 +48,17 @@ export default function AgentCard({ agent, index, isActive }) {
         'relative glass-strong rounded-2xl p-5 border border-white/5',
         'transition-all duration-300',
         'overflow-hidden',
-        isActive && 'ring-2 ring-blue-500/30 shadow-lg shadow-blue-500/10',
-        agent.status === 'completed' && 'hover:shadow-lg hover:shadow-green-500/10',
-        agent.status === 'running' && 'hover:shadow-lg hover:shadow-blue-500/10'
+        isActive && 'ring-2 ring-zinc-100/40 shadow-lg shadow-black/40',
+        agent.status === 'completed' && 'hover:shadow-lg hover:shadow-black/40',
+        agent.status === 'running' && 'hover:shadow-lg hover:shadow-black/40'
       )}
     >
-      <div className="absolute inset-0 bg-gradient-to-br from-transparent via-blue-500/5 to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
+      <div className="absolute inset-0 bg-gradient-to-br from-transparent via-white/5 to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
 
       <div className="relative flex items-start gap-4">
         <div className={cn(
-          'flex h-12 w-12 shrink-0 items-center justify-center rounded-xl',
-          agent.color === 'electric-blue' && 'bg-blue-500/20 text-blue-400',
-          agent.color === 'violet' && 'bg-violet-500/20 text-violet-400',
-          agent.color === 'cyan' && 'bg-cyan-500/20 text-cyan-400',
-          isActive && 'ring-2 ring-current'
+          'flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-white/10 text-zinc-200',
+          isActive && 'ring-2 ring-zinc-100/40'
         )}>
           <Icon className="h-6 w-6" />
         </div>
@@ -86,12 +83,7 @@ export default function AgentCard({ agent, index, isActive }) {
                 initial={{ width: 0 }}
                 animate={{ width: `${agent.progress}%` }}
                 transition={{ duration: 0.5, delay: index * 0.08 + 0.2, ease: 'easeOut' }}
-                className={cn(
-                  'h-full rounded-full transition-all duration-500',
-                  agent.color === 'electric-blue' && 'bg-gradient-to-r from-blue-500 to-blue-400',
-                  agent.color === 'violet' && 'bg-gradient-to-r from-violet-500 to-violet-400',
-                  agent.color === 'cyan' && 'bg-gradient-to-r from-cyan-500 to-cyan-400'
-                )}
+                className="h-full rounded-full bg-zinc-100 transition-all duration-500"
               />
             </div>
           </div>
@@ -103,12 +95,12 @@ export default function AgentCard({ agent, index, isActive }) {
           initial={{ scaleX: 0 }}
           animate={{ scaleX: 1 }}
           transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
-          className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-blue-500 to-violet-500 transform-origin-left"
+          className="absolute bottom-0 left-0 right-0 h-0.5 bg-zinc-100 transform-origin-left"
         />
       )}
 
       {agent.status === 'completed' && (
-        <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-green-500 to-emerald-500" />
+        <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-emerald-400" />
       )}
     </motion.div>
   )

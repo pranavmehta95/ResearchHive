@@ -74,7 +74,7 @@ export default function UploadArea({ uploadedFiles, onAddFiles, onRemoveFile, on
           <span className={cn(
             'px-3 py-1 rounded-full text-xs font-medium',
             uploadedFiles.length >= MIN_FILES
-              ? 'bg-green-500/20 text-green-400'
+              ? 'bg-emerald-500/20 text-emerald-400'
               : 'bg-amber-500/20 text-amber-400'
           )}>
             {uploadedFiles.length}/{MAX_FILES} papers
@@ -93,10 +93,10 @@ export default function UploadArea({ uploadedFiles, onAddFiles, onRemoveFile, on
           'relative rounded-xl border-2 border-dashed transition-all duration-300',
           'cursor-pointer',
           isDragActive
-            ? 'border-blue-500/50 bg-blue-500/5'
+            ? 'border-zinc-100/50 bg-white/5'
             : uploadedFiles.length >= MAX_FILES
-            ? 'border-green-500/30 bg-green-500/5'
-            : 'border-white/10 hover:border-blue-500/30 hover:bg-white/5'
+            ? 'border-emerald-500/30 bg-emerald-500/5'
+            : 'border-white/10 hover:border-zinc-100/30 hover:bg-white/5'
         )}
       >
         <input
@@ -120,8 +120,8 @@ export default function UploadArea({ uploadedFiles, onAddFiles, onRemoveFile, on
               <div className={cn(
                 'flex h-16 w-16 items-center justify-center rounded-2xl',
                 isDragActive
-                  ? 'bg-blue-500/20 text-blue-400'
-                  : 'bg-white/5 text-slate-500'
+                  ? 'bg-white/10 text-zinc-100'
+                  : 'bg-white/5 text-zinc-500'
               )}>
                 <Upload className="h-8 w-8" />
               </div>
@@ -147,8 +147,8 @@ export default function UploadArea({ uploadedFiles, onAddFiles, onRemoveFile, on
                 >
                   <div className={cn(
                     'flex h-12 w-12 shrink-0 items-center justify-center rounded-xl',
-                    file.status === 'completed' && 'bg-green-500/20 text-green-400',
-                    file.status === 'processing' && 'bg-blue-500/20 text-blue-400',
+                    file.status === 'completed' && 'bg-emerald-500/20 text-emerald-400',
+                    file.status === 'processing' && 'bg-white/10 text-zinc-200',
                     file.status === 'error' && 'bg-red-500/20 text-red-400',
                     file.status === 'pending' && 'bg-amber-500/20 text-amber-400'
                   )}>
@@ -168,7 +168,7 @@ export default function UploadArea({ uploadedFiles, onAddFiles, onRemoveFile, on
                       <span>{file.pages} pages</span>
                       <span>{file.size}</span>
                       {file.status === 'processing' && (
-                        <span className="text-blue-400 flex items-center gap-1">
+                        <span className="text-zinc-300 flex items-center gap-1">
                           <Loader2 className="h-3 w-3 animate-spin" /> Processing...
                         </span>
                       )}
@@ -190,14 +190,14 @@ export default function UploadArea({ uploadedFiles, onAddFiles, onRemoveFile, on
             </AnimatePresence>
 
             {uploadedFiles.length < MAX_FILES && !isAnalyzing && (
-              <label htmlFor="file-upload" className="mt-3 flex items-center justify-center gap-2 rounded-xl border-2 border-dashed border-white/10 p-4 text-slate-400 hover:border-blue-500/30 hover:text-slate-200 hover:bg-white/5 transition-all cursor-pointer">
+              <label htmlFor="file-upload" className="mt-3 flex items-center justify-center gap-2 rounded-xl border-2 border-dashed border-white/10 p-4 text-zinc-400 hover:border-zinc-100/30 hover:text-zinc-200 hover:bg-white/5 transition-all cursor-pointer">
                 <Plus className="h-5 w-5" />
                 <span className="text-sm font-medium">Add more papers</span>
               </label>
             )}
 
             {uploadedFiles.length >= MAX_FILES && (
-              <div className="mt-3 flex items-center justify-center gap-2 text-sm text-green-400">
+              <div className="mt-3 flex items-center justify-center gap-2 text-sm text-emerald-400">
                 <CheckCircle2 className="h-4 w-4" />
                 <span>Maximum number of papers reached</span>
               </div>
@@ -228,9 +228,9 @@ export default function UploadArea({ uploadedFiles, onAddFiles, onRemoveFile, on
           onClick={onStartAnalysis}
           disabled={!canStartAnalysis}
           className="flex-1 flex items-center justify-center gap-2 rounded-xl px-6 py-3 font-medium text-sm transition-all
-            bg-gradient-to-r from-blue-500 to-violet-600 text-white shadow-lg shadow-blue-500/30
-            hover:from-blue-600 hover:to-violet-700 hover:shadow-xl hover:shadow-blue-500/40
-            disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:from-blue-500 disabled:hover:to-violet-600 disabled:hover:shadow-lg"
+            bg-zinc-100 text-zinc-900 shadow-lg
+            hover:bg-white hover:shadow-xl
+            disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-zinc-100"
         >
           {isAnalyzing ? (
             <>

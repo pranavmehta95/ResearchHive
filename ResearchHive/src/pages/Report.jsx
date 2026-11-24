@@ -257,7 +257,7 @@ export default function Report({ papers: initialPapers, results: initialResults,
             <h1 className="text-3xl font-bold text-gradient mb-2">{results.overview.title}</h1>
             <p className="text-slate-400 text-lg">{results.overview.researchQuestion}</p>
             {isDemo && (
-              <span className="inline-flex items-center gap-1 mt-2 px-3 py-1 rounded-full text-xs font-medium bg-violet-500/20 text-violet-400">
+              <span className="inline-flex items-center gap-1 mt-2 px-3 py-1 rounded-full text-xs font-medium bg-white/10 text-zinc-300">
                 <Sparkles className="h-3 w-3" />
                 Demo Mode
               </span>
@@ -274,7 +274,7 @@ export default function Report({ papers: initialPapers, results: initialResults,
             </button>
             <button
               onClick={downloadPDF}
-              className="flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-blue-500 to-violet-600 text-white shadow-lg shadow-blue-500/30 hover:from-blue-600 hover:to-violet-700 transition-all text-sm"
+              className="flex items-center gap-2 px-4 py-2.5 bg-zinc-100 text-zinc-900 shadow-lg hover:bg-white transition-all text-sm"
             >
               <Download className="h-4 w-4" />
               <span>PDF</span>
@@ -295,15 +295,15 @@ export default function Report({ papers: initialPapers, results: initialResults,
               <div className="text-sm text-slate-400">Research Consensus</div>
             </div>
             <div className="text-center border-l border-white/10 pl-6 md:border-l-0 md:border-t md:pt-6 md:pl-0">
-              <div className="text-4xl font-bold text-blue-400 mb-1">{papers.length}</div>
+              <div className="text-4xl font-bold text-zinc-300 mb-1">{papers.length}</div>
               <div className="text-sm text-slate-400">Papers Analyzed</div>
             </div>
             <div className="text-center border-l border-white/10 pl-6 md:border-l-0 md:border-t md:pt-6 md:pl-0">
-              <div className="text-4xl font-bold text-violet-400 mb-1">{results.overview.keyStatistics?.totalCitations?.toLocaleString() || '1,880'}</div>
+              <div className="text-4xl font-bold text-zinc-300 mb-1">{results.overview.keyStatistics?.totalCitations?.toLocaleString() || '1,880'}</div>
               <div className="text-sm text-slate-400">Total Citations</div>
             </div>
             <div className="text-center border-l border-white/10 pl-6 md:border-l-0 md:border-t md:pt-6 md:pl-0">
-              <div className="text-4xl font-bold text-cyan-400 mb-1">{results.overview.keyStatistics?.yearRange || '2018-2019'}</div>
+              <div className="text-4xl font-bold text-zinc-300 mb-1">{results.overview.keyStatistics?.yearRange || '2018-2019'}</div>
               <div className="text-sm text-slate-400">Year Range</div>
             </div>
           </div>
@@ -326,7 +326,7 @@ export default function Report({ papers: initialPapers, results: initialResults,
                   className={cn(
                     'flex items-center gap-2 px-4 py-3 text-sm font-medium rounded-xl transition-all whitespace-nowrap',
                     activeSection === section.id
-                      ? 'bg-gradient-to-r from-blue-500/20 to-violet-500/20 text-white shadow-lg shadow-blue-500/10'
+                      ? 'bg-white/10 text-white'
                       : 'text-slate-400 hover:text-slate-200 hover:bg-white/5'
                   )}
                 >
@@ -363,7 +363,7 @@ function OverviewSection({ results, papers }) {
     >
       <div className="glass-strong rounded-2xl p-6 border border-white/5">
         <h2 className="text-xl font-semibold text-slate-100 mb-4 flex items-center gap-2">
-          <Brain className="h-5 w-5 text-blue-400" />
+          <Brain className="h-5 w-5 text-zinc-300" />
           Executive Summary
         </h2>
         <div className="prose prose-invert max-w-none text-slate-300 space-y-4 text-base leading-relaxed">
@@ -375,14 +375,14 @@ function OverviewSection({ results, papers }) {
 
       <div className="glass-strong rounded-2xl p-6 border border-white/5">
         <h2 className="text-xl font-semibold text-slate-100 mb-4 flex items-center gap-2">
-          <BookOpen className="h-5 w-5 text-violet-400" />
+          <BookOpen className="h-5 w-5 text-zinc-300" />
           Papers Reviewed
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {papers.map((paper, idx) => (
             <div key={paper.id} className="glass rounded-xl p-4 border border-white/5 hover:border-white/10 transition-colors">
               <div className="flex items-start gap-3">
-                <div className="flex-shrink-0 w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 to-violet-600 flex items-center justify-center text-white font-bold text-lg">
+                <div className="flex-shrink-0 w-12 h-12 rounded-xl bg-white/10 text-zinc-200 font-bold text-lg">
                   {idx + 1}
                 </div>
                 <div className="flex-1 min-w-0">
@@ -402,7 +402,7 @@ function OverviewSection({ results, papers }) {
 
       <div className="glass-strong rounded-2xl p-6 border border-white/5">
         <h2 className="text-xl font-semibold text-slate-100 mb-4 flex items-center gap-2">
-          <Target className="h-5 w-5 text-cyan-400" />
+          <Target className="h-5 w-5 text-zinc-300" />
           Research Consensus Radar
         </h2>
         <p className="text-slate-400 mb-6">
@@ -414,13 +414,13 @@ function OverviewSection({ results, papers }) {
               <PolarGrid stroke="rgba(255,255,255,0.08)" />
               <PolarAngleAxis dataKey="subject" stroke="#94a3b8" tick={{ fill: '#94a3b8', fontSize: 11 }} />
               <PolarRadiusAxis stroke="rgba(255,255,255,0.08)" domain={[0, 100]} tickCount={5} />
-              <Radar name="Novelty" dataKey="Novelty" stroke="#8b5cf6" fill="#8b5cf6" fillOpacity={0.15} />
-              <Radar name="Methodology" dataKey="Methodology" stroke="#3b82f6" fill="#3b82f6" fillOpacity={0.15} />
-              <Radar name="Datasets" dataKey="Datasets" stroke="#06b6d4" fill="#06b6d4" fillOpacity={0.15} />
-              <Radar name="Evaluation" dataKey="Evaluation" stroke="#22c55e" fill="#22c55e" fillOpacity={0.15} />
-              <Radar name="Impact" dataKey="Impact" stroke="#f59e0b" fill="#f59e0b" fillOpacity={0.15} />
+              <Radar name="Novelty" dataKey="Novelty" stroke="#fafafa" fill="#fafafa" fillOpacity={0.15} />
+              <Radar name="Methodology" dataKey="Methodology" stroke="#d4d4d8" fill="#d4d4d8" fillOpacity={0.15} />
+              <Radar name="Datasets" dataKey="Datasets" stroke="#a1a1aa" fill="#a1a1aa" fillOpacity={0.15} />
+              <Radar name="Evaluation" dataKey="Evaluation" stroke="#71717a" fill="#71717a" fillOpacity={0.15} />
+              <Radar name="Impact" dataKey="Impact" stroke="#52525b" fill="#52525b" fillOpacity={0.15} />
               <Tooltip
-                contentStyle={{ background: '#0f172a', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '0.75rem', color: '#fff' }}
+                contentStyle={{ background: '#141416', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '0.75rem', color: '#fff' }}
                 labelFormatter={(label) => label}
               />
             </RadarChart>
@@ -442,7 +442,7 @@ function PapersSection({ papers }) {
         <div key={paper.id} className="glass-strong rounded-2xl p-6 border border-white/5">
           <div className="flex items-start justify-between gap-4">
             <div className="flex items-start gap-4">
-              <div className="flex-shrink-0 w-14 h-14 rounded-xl bg-gradient-to-br from-blue-500 to-violet-600 flex items-center justify-center text-white font-bold text-xl">
+              <div className="flex-shrink-0 w-14 h-14 rounded-xl bg-white/10 text-zinc-200 font-bold text-xl">
                 {idx + 1}
               </div>
               <div>
@@ -477,7 +477,7 @@ function SummariesSection({ results, papers, copyToClipboard, copiedItem }) {
           <div key={item.paperId} className="glass-strong rounded-2xl p-6 border border-white/5">
             <div className="flex items-start justify-between gap-4 mb-4">
               <div>
-                <span className="px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-500/20 text-blue-400 mb-2 inline-block">
+                <span className="px-2.5 py-0.5 rounded-full text-xs font-medium bg-white/10 text-zinc-300 mb-2 inline-block">
                   {paper.venue} ({paper.year})
                 </span>
                 <h3 className="text-xl font-bold text-slate-100">{paper.title}</h3>
@@ -489,8 +489,8 @@ function SummariesSection({ results, papers, copyToClipboard, copiedItem }) {
                 <div key={idx} className="flex items-start gap-3 p-4 rounded-xl bg-white/5 border border-white/5">
                   <span className={cn(
                     'px-3 py-1 rounded text-[11px] font-semibold uppercase tracking-wider shrink-0 mt-0.5',
-                    insight.type === 'innovation' && 'bg-violet-500/20 text-violet-400',
-                    insight.type === 'finding' && 'bg-blue-500/20 text-blue-400',
+                    insight.type === 'innovation' && 'bg-white/10 text-zinc-300',
+                    insight.type === 'finding' && 'bg-white/10 text-zinc-300',
                     insight.type === 'limitation' && 'bg-amber-500/20 text-amber-400'
                   )}>
                     {insight.type}
@@ -529,7 +529,7 @@ function ComparisonSection({ results, papers }) {
     >
       <div className="glass-strong rounded-2xl p-6 border border-white/5">
         <h2 className="text-xl font-semibold text-slate-100 mb-4 flex items-center gap-2">
-          <BarChart2 className="h-5 w-5 text-blue-400" />
+          <BarChart2 className="h-5 w-5 text-zinc-300" />
           Interactive Methodology Comparison
         </h2>
 
@@ -540,13 +540,13 @@ function ComparisonSection({ results, papers }) {
               <PolarGrid stroke="rgba(255,255,255,0.08)" />
               <PolarAngleAxis dataKey="subject" stroke="#94a3b8" tick={{ fill: '#94a3b8', fontSize: 11 }} />
               <PolarRadiusAxis stroke="rgba(255,255,255,0.08)" domain={[0, 100]} />
-              <Radar name="Novelty" dataKey="Novelty" stroke="#8b5cf6" fill="#8b5cf6" fillOpacity={0.15} />
-              <Radar name="Methodology" dataKey="Methodology" stroke="#3b82f6" fill="#3b82f6" fillOpacity={0.15} />
-              <Radar name="Datasets" dataKey="Datasets" stroke="#06b6d4" fill="#06b6d4" fillOpacity={0.15} />
-              <Radar name="Evaluation" dataKey="Evaluation" stroke="#22c55e" fill="#22c55e" fillOpacity={0.15} />
-              <Radar name="Impact" dataKey="Impact" stroke="#f59e0b" fill="#f59e0b" fillOpacity={0.15} />
+              <Radar name="Novelty" dataKey="Novelty" stroke="#fafafa" fill="#fafafa" fillOpacity={0.15} />
+              <Radar name="Methodology" dataKey="Methodology" stroke="#d4d4d8" fill="#d4d4d8" fillOpacity={0.15} />
+              <Radar name="Datasets" dataKey="Datasets" stroke="#a1a1aa" fill="#a1a1aa" fillOpacity={0.15} />
+              <Radar name="Evaluation" dataKey="Evaluation" stroke="#71717a" fill="#71717a" fillOpacity={0.15} />
+              <Radar name="Impact" dataKey="Impact" stroke="#52525b" fill="#52525b" fillOpacity={0.15} />
               <Tooltip
-                contentStyle={{ background: '#0f172a', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '0.75rem', color: '#fff' }}
+                contentStyle={{ background: '#141416', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '0.75rem', color: '#fff' }}
               />
               <Legend />
             </RadarChart>
@@ -602,7 +602,7 @@ function FindingsSection({ results, papers, copyToClipboard, copiedItem }) {
       {commonFindings.map((finding, idx) => (
         <div key={idx} className="glass-strong rounded-2xl p-6 border border-white/5">
           <div className="flex items-start gap-4">
-            <div className="flex-shrink-0 w-10 h-10 rounded-xl bg-green-500/20 text-green-400 flex items-center justify-center">
+            <div className="flex-shrink-0 w-10 h-10 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center">
               <Check className="h-5 w-5" />
             </div>
             <div className="flex-1">
@@ -629,7 +629,7 @@ function FindingsSection({ results, papers, copyToClipboard, copiedItem }) {
               className="p-2 rounded-lg text-slate-500 hover:bg-white/10 hover:text-white transition-colors shrink-0"
               aria-label="Copy finding"
             >
-              {copiedItem === `finding-${idx}` ? <Check className="h-4 w-4 text-green-400" /> : <Copy className="h-4 w-4" />}
+              {copiedItem === `finding-${idx}` ? <Check className="h-4 w-4 text-emerald-400" /> : <Copy className="h-4 w-4" />}
             </button>
           </div>
         </div>
@@ -667,7 +667,7 @@ function GapsSection({ results, papers }) {
               <XAxis type="number" domain={[0, 100]} tick={{ fill: '#94a3b8', fontSize: 11 }} tickFormatter={(v) => v > 0 ? `${v}%` : ''} />
               <YAxis dataKey="name" type="category" tick={{ fill: '#94a3b8', fontSize: 11 }} width={280} />
               <RechartsTooltip
-                contentStyle={{ background: '#0f172a', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '0.75rem', color: '#fff' }}
+                contentStyle={{ background: '#141416', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '0.75rem', color: '#fff' }}
                 formatter={(value, name) => [`${value}% Priority`, '']}
               />
               <Bar dataKey="severity" fill="#f59e0b" radius={[0, 4, 4, 0]} />
@@ -758,7 +758,7 @@ function ReferencesSection({ results, copyToClipboard, copiedItem }) {
                 `[${idx + 1}] ${ref.authors}. "${ref.title}." ${ref.venue} ${ref.year}.`,
                 `ref-${idx}`
               )}
-              className="flex items-center gap-1.5 px-3 py-2 rounded-xl glass text-xs text-blue-400 hover:text-blue-300 hover:bg-white/10 transition-colors"
+              className="flex items-center gap-1.5 px-3 py-2 rounded-xl glass text-xs text-zinc-300 hover:text-white hover:bg-white/10 transition-colors"
             >
               <Copy className="h-3.5 w-3.5" />
               {copiedItem === `ref-${idx}` ? 'Copied!' : 'Copy'}

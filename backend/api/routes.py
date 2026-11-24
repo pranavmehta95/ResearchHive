@@ -1,12 +1,15 @@
 import os
 import uuid
 import json
+import hashlib
+import hmac
+import secrets
 import asyncio
 from datetime import datetime
 from typing import List, Dict, Any, Optional
 from pathlib import Path
 
-from fastapi import APIRouter, UploadFile, File, Form, HTTPException, BackgroundTasks
+from fastapi import APIRouter, UploadFile, File, Form, HTTPException, BackgroundTasks, Depends, Header
 from fastapi.responses import JSONResponse
 
 from utils.config import settings
@@ -14,9 +17,16 @@ from models.schemas import (
     PaperUploadResponse, UploadPapersResponse,
     AnalysisResponse, AnalysisDetailResponse,
     AnalysisStatus, AgentStatus, AgentProgress, PaperStatus,
-    PaperMetadata
+    PaperMetadata, RegisterRequest, LoginRequest
 )
-from services.pdf_processor import extract_text_from_pdf, get_pdf_metadata
+from services.pdf_processor import get_cached_or_extract, compute_file_hash
+from services.database import (
+    save_paper, get_papers_by_upload,
+    save_analysis_record, load_analysis_record,
+    get_cached_analysis_id, set_analysis_cache,
+    create_user, get_user_by_login, get_user_by_token,
+    create_session, delete_session, list_analyses_for_user,
+)
 from services.embedding_service import embedding_service
 from agents.paper_analysis_agent import PaperAnalysisAgent
 from agents.methodology_agent import MethodologyAgent
@@ -26,9 +36,35 @@ from agents.research_manager_agent import ResearchManagerAgent
 
 router = APIRouter()
 
-# In-memory storage for analysis status (use Redis in production)
+# In-memory L1 cache for live analyses (agents hold object refs during a run);
+# SQLite is the durable store.
 analysis_store: Dict[str, Dict[str, Any]] = {}
-paper_store: Dict[str, Dict[str, Any]] = {}
+
+
+# --- Auth helpers ---
+
+def hash_password(password: str) -> str:
+    salt = secrets.token_hex(16)
+    dk = hashlib.pbkdf2_hmac("sha256", password.encode(), salt.encode(), 100_000)
+    return f"pbkdf2${salt}${dk.hex()}"
+
+
+def verify_password(password: str, stored: str) -> bool:
+    try:
+        _, salt, hex_hash = stored.split("$")
+        dk = hashlib.pbkdf2_hmac("sha256", password.encode(), salt.encode(), 100_000)
+        return hmac.compare_digest(dk.hex(), hex_hash)
+    except Exception:
+        return False
+
+
+def get_current_user(authorization: Optional[str] = Header(None)) -> Dict[str, Any]:
+    if not authorization or not authorization.startswith("Bearer "):
+        raise HTTPException(status_code=401, detail="Not authenticated")
+    user = get_user_by_token(authorization[7:])
+    if not user:
+        raise HTTPException(status_code=401, detail="Invalid or expired token")
+    return user
 
 
 def get_analysis_dir(analysis_id: str) -> str:
@@ -39,30 +75,71 @@ def get_analysis_dir(analysis_id: str) -> str:
 
 def save_analysis(analysis_id: str, data: Dict[str, Any]):
     analysis_store[analysis_id] = data
-    # Also persist to disk
-    dir_path = get_analysis_dir(analysis_id)
-    with open(os.path.join(dir_path, "status.json"), 'w') as f:
-        # Convert datetime to string for JSON serialization
-        serializable = {k: v.isoformat() if isinstance(v, datetime) else v for k, v in data.items()}
-        json.dump(serializable, f, default=str)
+    save_analysis_record(analysis_id, data.get("upload_id", ""), data.get("status", ""), data, data.get("user_id"))
 
 
 def load_analysis(analysis_id: str) -> Optional[Dict[str, Any]]:
     if analysis_id in analysis_store:
         return analysis_store[analysis_id]
-    # Try loading from disk
-    dir_path = get_analysis_dir(analysis_id)
-    status_file = os.path.join(dir_path, "status.json")
-    if os.path.exists(status_file):
-        with open(status_file, 'r') as f:
-            data = json.load(f)
-            analysis_store[analysis_id] = data
-            return data
-    return None
+    return load_analysis_record(analysis_id)
+
+
+def get_analysis_cache_key(papers: List[Dict[str, Any]], research_question: str, user_id: str = "") -> str:
+    """Stable key for (user, set of papers, research question)."""
+    paper_hashes = sorted(compute_file_hash(p["file_path"]) for p in papers)
+    payload = json.dumps({"user": user_id, "papers": paper_hashes, "question": research_question.strip().lower()}, sort_keys=True)
+    return hashlib.sha256(payload.encode()).hexdigest()
+
+
+# --- Auth endpoints ---
+
+def public_user(user: Dict[str, Any]) -> Dict[str, Any]:
+    return {"id": user["id"], "username": user["username"], "email": user["email"]}
+
+
+@router.post("/auth/register")
+async def register(payload: RegisterRequest):
+    existing = get_user_by_login(payload.username) or get_user_by_login(payload.email)
+    if existing:
+        raise HTTPException(status_code=409, detail="Username or email already registered")
+
+    user = create_user(payload.username, payload.email, hash_password(payload.password))
+    token = secrets.token_urlsafe(32)
+    create_session(user["id"], token)
+    return {"token": token, "user": public_user(user)}
+
+
+@router.post("/auth/login")
+async def login(payload: LoginRequest):
+    user = get_user_by_login(payload.login)
+    if not user or not verify_password(payload.password, user["password_hash"]):
+        raise HTTPException(status_code=401, detail="Invalid credentials")
+
+    token = secrets.token_urlsafe(32)
+    create_session(user["id"], token)
+    return {"token": token, "user": public_user(user)}
+
+
+@router.post("/auth/logout")
+async def logout(authorization: Optional[str] = Header(None)):
+    if authorization and authorization.startswith("Bearer "):
+        delete_session(authorization[7:])
+    return {"status": "logged out"}
+
+
+@router.get("/auth/me")
+async def me(user: Dict[str, Any] = Depends(get_current_user)):
+    return {"user": public_user(user)}
+
+
+@router.get("/analyses")
+async def list_analyses(user: Dict[str, Any] = Depends(get_current_user)):
+    """List the current user's analyses (survives refresh/restart)."""
+    return {"analyses": list_analyses_for_user(user["id"])}
 
 
 @router.post("/upload-papers", response_model=UploadPapersResponse)
-async def upload_papers(files: List[UploadFile] = File(...)):
+async def upload_papers(files: List[UploadFile] = File(...), user: Dict[str, Any] = Depends(get_current_user)):
     """Upload PDF papers for analysis."""
     if len(files) < 3 or len(files) > 5:
         raise HTTPException(status_code=400, detail="Please upload 3-5 PDF papers")
@@ -72,7 +149,6 @@ async def upload_papers(files: List[UploadFile] = File(...)):
     os.makedirs(upload_dir, exist_ok=True)
 
     papers_response = []
-    paper_metadata_list = []
 
     for file in files:
         if not file.filename.endswith('.pdf'):
@@ -92,8 +168,9 @@ async def upload_papers(files: List[UploadFile] = File(...)):
         with open(file_path, 'wb') as f:
             f.write(content)
 
-        # Get metadata
-        metadata = get_pdf_metadata(file_path)
+        # Get metadata (served from permanent doc cache after first extraction)
+        doc = get_cached_or_extract(file_path)
+        metadata = doc["metadata"]
         pages = metadata.get("pages", 0)
         size_mb = len(content) / (1024 * 1024)
 
@@ -106,11 +183,11 @@ async def upload_papers(files: List[UploadFile] = File(...)):
             "size": f"{size_mb:.1f} MB",
             "status": PaperStatus.COMPLETED,
             "upload_time": datetime.now(),
-            "upload_id": upload_id
+            "upload_id": upload_id,
+            "user_id": user["id"]
         }
 
-        paper_metadata_list.append(paper_info)
-        paper_store[paper_id] = paper_info
+        save_paper(paper_info)
 
         papers_response.append(PaperUploadResponse(
             paper_id=paper_id,
@@ -126,16 +203,23 @@ async def upload_papers(files: List[UploadFile] = File(...)):
 async def start_analysis(
     background_tasks: BackgroundTasks,
     upload_id: str = Form(...),
-    research_question: str = Form(...)
+    research_question: str = Form(...),
+    user: Dict[str, Any] = Depends(get_current_user)
 ):
     """Start the multi-agent analysis pipeline."""
     # Get papers for this upload
-    papers = [p for p in paper_store.values() if p.get("upload_id") == upload_id]
+    papers = get_papers_by_upload(upload_id, user_id=user["id"])
     if not papers:
         raise HTTPException(status_code=404, detail="No papers found for this upload")
 
     if len(papers) < 3:
         raise HTTPException(status_code=400, detail="Need at least 3 papers for analysis")
+
+    # Return cached result if this exact paper set + question was already analyzed
+    cache_key = get_analysis_cache_key(papers, research_question, user["id"])
+    cached_analysis_id = get_cached_analysis_id(cache_key)
+    if cached_analysis_id and load_analysis(cached_analysis_id):
+        return {"analysis_id": cached_analysis_id, "status": "cached"}
 
     analysis_id = str(uuid.uuid4())
 
@@ -159,18 +243,19 @@ async def start_analysis(
         "started_at": datetime.now(),
         "updated_at": datetime.now(),
         "error": None,
-        "paper_ids": [p["paper_id"] for p in papers]
+        "paper_ids": [p["paper_id"] for p in papers],
+        "user_id": user["id"]
     }
 
     save_analysis(analysis_id, analysis_data)
 
     # Start background processing
-    background_tasks.add_task(run_analysis_pipeline, analysis_id, papers, research_question)
+    background_tasks.add_task(run_analysis_pipeline, analysis_id, papers, research_question, cache_key)
 
     return {"analysis_id": analysis_id, "status": "started"}
 
 
-async def run_analysis_pipeline(analysis_id: str, papers: List[Dict[str, Any]], research_question: str):
+async def run_analysis_pipeline(analysis_id: str, papers: List[Dict[str, Any]], research_question: str, cache_key: str = None):
     """Run the complete analysis pipeline."""
     try:
         analysis = load_analysis(analysis_id)
@@ -190,7 +275,8 @@ async def run_analysis_pipeline(analysis_id: str, papers: List[Dict[str, Any]], 
             analysis["progress"] = 10 + (i * 10)
             save_analysis(analysis_id, analysis)
 
-            chunks = extract_text_from_pdf(paper["file_path"])
+            doc = get_cached_or_extract(paper["file_path"])
+            chunks = doc["chunks"]
             embedding_service.add_chunks(chunks, paper["paper_id"], paper["filename"])
 
         # Save FAISS index
@@ -311,6 +397,10 @@ async def run_analysis_pipeline(analysis_id: str, papers: List[Dict[str, Any]], 
         analysis["report"] = final_report
         save_analysis(analysis_id, analysis)
 
+        # Cache the final result so identical paper sets + questions return instantly
+        if cache_key:
+            set_analysis_cache(cache_key, analysis_id)
+
     except Exception as e:
         analysis = load_analysis(analysis_id)
         if analysis:
@@ -321,12 +411,19 @@ async def run_analysis_pipeline(analysis_id: str, papers: List[Dict[str, Any]], 
             save_analysis(analysis_id, analysis)
 
 
+def check_analysis_owner(analysis: Dict[str, Any], user: Dict[str, Any]):
+    owner = analysis.get("user_id")
+    if owner and owner != user["id"]:
+        raise HTTPException(status_code=403, detail="Not authorized for this analysis")
+
+
 @router.get("/analysis/{analysis_id}", response_model=AnalysisResponse)
-async def get_analysis_status(analysis_id: str):
+async def get_analysis_status(analysis_id: str, user: Dict[str, Any] = Depends(get_current_user)):
     """Get analysis progress status."""
     analysis = load_analysis(analysis_id)
     if not analysis:
         raise HTTPException(status_code=404, detail="Analysis not found")
+    check_analysis_owner(analysis, user)
 
     # Convert datetime strings back to datetime objects if needed
     agents = []
@@ -349,11 +446,12 @@ async def get_analysis_status(analysis_id: str):
 
 
 @router.get("/report/{analysis_id}", response_model=AnalysisDetailResponse)
-async def get_analysis_report(analysis_id: str):
+async def get_analysis_report(analysis_id: str, user: Dict[str, Any] = Depends(get_current_user)):
     """Get the complete analysis report."""
     analysis = load_analysis(analysis_id)
     if not analysis:
         raise HTTPException(status_code=404, detail="Analysis not found")
+    check_analysis_owner(analysis, user)
 
     # Try to load report from disk if not in memory
     report = analysis.get("report")
@@ -374,9 +472,9 @@ async def get_analysis_report(analysis_id: str):
 
 
 @router.get("/papers/{upload_id}")
-async def get_papers_for_upload(upload_id: str):
+async def get_papers_for_upload(upload_id: str, user: Dict[str, Any] = Depends(get_current_user)):
     """Get list of papers for an upload."""
-    papers = [p for p in paper_store.values() if p.get("upload_id") == upload_id]
+    papers = get_papers_by_upload(upload_id, user_id=user["id"])
     if not papers:
         raise HTTPException(status_code=404, detail="No papers found for this upload")
 
