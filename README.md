@@ -225,7 +225,7 @@ GEMINI_MODEL=gemini-1.5-flash
 HOST=0.0.0.0
 PORT=8000
 RELOAD=true
-CORS_ORIGINS=http://localhost:5173,http://localhost:3000
+CORS_ORIGINS=http://localhost:5173,http://127.0.0.1:5173,http://localhost:3000
 DATA_DIR=./data
 ```
 
