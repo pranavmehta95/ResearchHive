@@ -1,5 +1,8 @@
 import { Link, useLocation } from 'react-router-dom'
+import { useState } from 'react'
 import { cn } from '../utils/cn'
+import UpgradeModal from './UpgradeModal'
+import { getSubscription } from '../utils/subscription'
 import {
   FileText,
   Search,
@@ -20,6 +23,8 @@ const navItems = [
 
 export default function Sidebar({ collapsed, onToggle }) {
   const location = useLocation()
+  const [isPro, setIsPro] = useState(() => getSubscription().plan === 'pro')
+  const [upgradeOpen, setUpgradeOpen] = useState(false)
 
   return (
     <aside
@@ -97,20 +102,41 @@ export default function Sidebar({ collapsed, onToggle }) {
       </nav>
 
       <div className="border-t border-white/5 p-3">
-        <div className="glass rounded-xl p-3">
+        <button
+          type="button"
+          onClick={() => setUpgradeOpen(true)}
+          title={collapsed ? (isPro ? 'Manage Pro plan' : 'Upgrade to Pro') : undefined}
+          aria-haspopup="dialog"
+          className="glass w-full rounded-xl p-3 text-left transition-colors hover:bg-white/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-400/60"
+        >
           <div className="flex items-center gap-2">
             <div className="flex h-8 w-8 items-center justify-center rounded-full bg-white/10">
-              <Sparkles className="h-4 w-4 text-zinc-300" />
+              <Sparkles
+                className={cn('h-4 w-4', isPro ? 'text-violet-300' : 'text-zinc-300')}
+              />
             </div>
             {!collapsed && (
               <div className="min-w-0">
-                <p className="truncate text-xs font-medium text-slate-200">Pro Plan</p>
-                <p className="text-[10px] text-slate-500">5 agents active</p>
+                <p className="truncate text-xs font-medium text-slate-200">
+                  {isPro ? 'Pro Plan' : 'Upgrade to Pro'}
+                </p>
+                <p className="text-[10px] text-slate-500">
+                  {isPro ? 'Demo plan active' : 'Try demo checkout'}
+                </p>
               </div>
             )}
           </div>
-        </div>
+        </button>
       </div>
+
+      {upgradeOpen && (
+        <UpgradeModal
+          isPro={isPro}
+          onClose={() => setUpgradeOpen(false)}
+          onPlanActivated={() => setIsPro(true)}
+          onPlanReset={() => setIsPro(false)}
+        />
+      )}
     </aside>
   )
 }
