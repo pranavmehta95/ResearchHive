@@ -38,10 +38,10 @@ import {
   Tooltip as RechartsTooltip,
   Legend,
 } from 'recharts'
-import { jsPDF } from 'jspdf'
 import { mockPapers, mockResults } from '../data/mockData'
 import { api } from '../utils/api'
 import { normalizeReportData } from '../utils/reportData'
+import { downloadReportMarkdown, downloadReportPdf } from '../utils/reportExport'
 import { chartColors } from '../utils/chartTheme'
 import { useTheme } from '../context/ThemeContext'
 import { Loader2, AlertCircle } from 'lucide-react'
@@ -207,92 +207,6 @@ export default function Report({ papers: initialPapers, results: initialResults,
     )
   }
 
-  const downloadPDF = () => {
-    const doc = new jsPDF()
-    const pageWidth = doc.internal.pageSize.getWidth()
-    let y = 20
-
-    // Title
-    doc.setFontSize(24)
-    doc.setTextColor(59, 130, 246)
-    doc.text(results.overview.title, 20, y)
-    y += 12
-
-    doc.setFontSize(10)
-    doc.setTextColor(100)
-    doc.text(`Research Question: ${results.overview.researchQuestion}`, 20, y)
-    y += 10
-
-    doc.setFontSize(12)
-    doc.setTextColor(0)
-    doc.text('Executive Summary', 20, y)
-    y += 8
-
-    doc.setFontSize(10)
-    const summaryLines = doc.splitTextToSize(results.overview.summary, pageWidth - 40)
-    doc.text(summaryLines, 20, y)
-    y += summaryLines.length * 5 + 10
-
-    // Papers Reviewed
-    doc.setFontSize(12)
-    doc.setTextColor(59, 130, 246)
-    doc.text('Papers Reviewed', 20, y)
-    y += 8
-
-    doc.setFontSize(10)
-    doc.setTextColor(0)
-    papers.forEach((p, i) => {
-      const line = `${i + 1}. ${p.title} (${p.year}) - ${p.authors.join(', ')}`
-      doc.text(line, 20, y)
-      y += 7
-    })
-    y += 5
-
-    // Research Gaps
-    doc.setFontSize(12)
-    doc.setTextColor(59, 130, 246)
-    doc.text('Research Gaps', 20, y)
-    y += 8
-
-    doc.setFontSize(10)
-    doc.setTextColor(0)
-    results.researchGaps.forEach((gap, i) => {
-      const lines = doc.splitTextToSize(`${i + 1}. ${gap.title}: ${gap.description}`, pageWidth - 40)
-      doc.text(lines, 20, y)
-      y += lines.length * 5 + 5
-    })
-
-    doc.save('ResearchHive_Report.pdf')
-  }
-
-  const downloadMarkdown = () => {
-    let md = `# ${results.overview.title}\n\n`
-    md += `**Research Question:** ${results.overview.researchQuestion}\n\n`
-    md += `## Executive Summary\n\n${results.overview.summary}\n\n`
-    md += `## Papers Reviewed\n\n`
-    papers.forEach((p, i) => {
-      md += `${i + 1}. **${p.title}** (${p.year}) - ${p.authors.join(', ')}\n`
-    })
-    md += `\n## Research Gaps\n\n`
-    results.researchGaps.forEach((gap, i) => {
-      md += `### ${i + 1}. ${gap.title}\n${gap.description}\n\n`
-      md += `**Severity:** ${gap.severity}\n\n`
-      md += `**Future Directions:** ${gap.potentialDirections.join(', ')}\n\n`
-    })
-    md += `## References\n\n`
-    results.references.forEach((ref, i) => {
-      md += `[${i + 1}] ${ref.authors}. "${ref.title}." ${ref.venue} ${ref.year}.\n`
-    })
-
-    const blob = new Blob([md], { type: 'text/markdown' })
-    const url = URL.createObjectURL(blob)
-    const a = document.createElement('a')
-    a.href = url
-    a.download = 'ResearchHive_Report.md'
-    a.click()
-    URL.revokeObjectURL(url)
-  }
-
   const copyToClipboard = (text, label) => {
     navigator.clipboard.writeText(text)
     setCopiedItem(label)
@@ -319,6 +233,10 @@ export default function Report({ papers: initialPapers, results: initialResults,
           className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8"
         >
           <div>
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-violet-500/15 px-3 py-1 text-xs font-semibold tracking-wide text-violet-300 mb-3">
+              <Sparkles className="h-3.5 w-3.5" />
+              RESEARCHHIVE REPORT
+            </span>
             <h1 className="text-3xl font-bold text-gradient mb-2">{results.overview.title}</h1>
             <p className="text-slate-400 text-lg">{results.overview.researchQuestion}</p>
             {isDemo && (
@@ -331,18 +249,20 @@ export default function Report({ papers: initialPapers, results: initialResults,
 
           <div className="flex items-center gap-3">
             <button
-              onClick={downloadMarkdown}
+              onClick={() => downloadReportMarkdown(papers, results)}
+              aria-label="Export report as Markdown"
               className="flex items-center gap-2 px-4 py-2.5 glass border border-white/10 text-slate-300 hover:bg-white/5 hover:text-white transition-all text-sm"
             >
               <Download className="h-4 w-4" />
-              <span>Markdown</span>
+              <span>Export Markdown</span>
             </button>
             <button
-              onClick={downloadPDF}
+              onClick={() => downloadReportPdf(papers, results)}
+              aria-label="Export report as branded PDF"
               className="flex items-center gap-2 px-4 py-2.5 bg-zinc-100 text-zinc-900 shadow-lg hover:bg-white transition-all text-sm"
             >
               <Download className="h-4 w-4" />
-              <span>PDF</span>
+              <span>Export PDF</span>
             </button>
           </div>
         </motion.div>

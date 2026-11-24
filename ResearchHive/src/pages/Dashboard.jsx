@@ -8,7 +8,8 @@ import PipelineFlow from '../components/PipelineFlow'
 import ResultTabs from '../components/ResultTabs'
 import { api } from '../utils/api'
 import { mockPapers, mockAgents, mockTimeline, mockResults } from '../data/mockData'
-import { Sparkles, BookOpen, FileDown, Share2, MoreHorizontal, Loader2, AlertCircle } from 'lucide-react'
+import { Sparkles, BookOpen, FileDown, Share2, Loader2, AlertCircle } from 'lucide-react'
+import { downloadReportPdf } from '../utils/reportExport'
 
 export default function Dashboard() {
   const [uploadedFiles, setUploadedFiles] = useState([])
@@ -23,6 +24,8 @@ export default function Dashboard() {
   const [researchQuestion, setResearchQuestion] = useState('How have transformer architectures evolved to handle longer sequences and improve efficiency?')
   const [error, setError] = useState(null)
   const [recentAnalyses, setRecentAnalyses] = useState([])
+  const [isDemo, setIsDemo] = useState(false)
+  const [shareCopied, setShareCopied] = useState(false)
 
   const pollingInterval = useRef(null)
 
@@ -47,6 +50,7 @@ export default function Dashboard() {
         api.getAnalysisReport(id),
       ])
       setAnalysisId(id)
+      setIsDemo(false)
       setIsAnalyzing(false)
       setIsSimulating(false)
       setAnalysisStatus({ ...status, report: reportRes.report })
@@ -87,6 +91,9 @@ export default function Dashboard() {
     try {
       setError(null)
       const response = await api.uploadPapers(files)
+      setIsDemo(false)
+      setAnalysisId(null)
+      setAnalysisStatus(null)
       setUploadId(response.upload_id)
 
       const newFiles = response.papers.map((p, idx) => ({
@@ -109,6 +116,9 @@ export default function Dashboard() {
   }
 
   const handleUseDemo = () => {
+    setIsDemo(true)
+    setAnalysisId(null)
+    setUploadId(null)
     setUploadedFiles(mockPapers)
     // For demo purposes, we'll just show the mock results
     setAnalysisStatus({
@@ -183,6 +193,7 @@ export default function Dashboard() {
   const handleStartAnalysis = async () => {
     if (!uploadId) {
       // If we don't have an uploadId (e.g. demo mode), just use mock data
+      setIsDemo(true)
       setIsAnalyzing(true)
       setTimeout(() => {
         setIsAnalyzing(false)
@@ -199,6 +210,7 @@ export default function Dashboard() {
 
     try {
       setError(null)
+      setIsDemo(false)
       setIsAnalyzing(true)
       const response = await api.startAnalysis(uploadId, researchQuestion)
       setAnalysisId(response.analysis_id)
@@ -234,6 +246,30 @@ export default function Dashboard() {
   }
 
   const hasResults = displayStatus.status === 'completed' && displayStatus.report
+  const handleExportReport = () => {
+    try {
+      downloadReportPdf(tabPapers, tabResults)
+    } catch (exportError) {
+      setError(exportError.message || 'Could not export this report.')
+    }
+  }
+
+  const handleShareReport = async () => {
+    const reportPath = isDemo
+      ? '/demo-report'
+      : analysisId
+        ? `/reports/${analysisId}`
+        : null
+    if (!reportPath) return
+
+    try {
+      await navigator.clipboard.writeText(new URL(reportPath, window.location.origin).href)
+      setShareCopied(true)
+      window.setTimeout(() => setShareCopied(false), 2000)
+    } catch {
+      setError('Could not copy the report link. Check clipboard permissions and try again.')
+    }
+  }
 
   // Normalize the LLM-generated report into the shape ResultTabs expects.
   // Field names/types vary between runs, so guard everything.
@@ -269,6 +305,7 @@ export default function Dashboard() {
     overview: {
       title: report.title || ov.title || 'Literature Review',
       researchQuestion: report.research_question || ov.researchQuestion || ov.research_question || researchQuestion,
+      consensusScore: toNum(ov.consensusScore ?? ov.consensus_score ?? report.consensus_score) || null,
       summary: (() => {
         const s = report.executive_summary ?? ov.summary ?? ''
         return typeof s === 'string' ? s : JSON.stringify(s || '')
@@ -360,24 +397,31 @@ export default function Dashboard() {
           </p>
         </motion.div>
 
-        <motion.div
-          initial={{ opacity: 0, x: 20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.3, delay: 0.1 }}
-          className="flex items-center gap-2"
-        >
-          <button className="rounded-xl px-4 py-2.5 glass text-slate-300 hover:text-white transition-all text-sm">
-            <FileDown className="h-4 w-4 mr-1.5 inline" />
-            Export
-          </button>
-          <button className="rounded-xl px-4 py-2.5 glass text-slate-300 hover:text-white transition-all text-sm">
-            <Share2 className="h-4 w-4 mr-1.5 inline" />
-            Share
-          </button>
-          <button className="rounded-xl p-2.5 glass text-slate-300 hover:text-white transition-all">
-            <MoreHorizontal className="h-5 w-5" />
-          </button>
-        </motion.div>
+        {hasResults && (
+          <motion.div
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.3, delay: 0.1 }}
+            className="flex items-center gap-2"
+          >
+            <button
+              onClick={handleExportReport}
+              className="rounded-xl px-4 py-2.5 glass text-slate-300 hover:text-white transition-all text-sm"
+              aria-label="Export completed report as PDF"
+            >
+              <FileDown className="h-4 w-4 mr-1.5 inline" />
+              Export PDF
+            </button>
+            <button
+              onClick={handleShareReport}
+              className="rounded-xl px-4 py-2.5 glass text-slate-300 hover:text-white transition-all text-sm"
+              aria-label="Copy link to completed report"
+            >
+              <Share2 className="h-4 w-4 mr-1.5 inline" />
+              {shareCopied ? 'Link Copied' : 'Share'}
+            </button>
+          </motion.div>
+        )}
       </div>
 
       <motion.div
