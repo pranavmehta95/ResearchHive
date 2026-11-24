@@ -50,7 +50,7 @@ function analysisToItem(a) {
   }
 }
 
-export default function Header() {
+export default function Header({ sidebarCollapsed = false }) {
   const { user, logout } = useAuth()
   const { theme, toggleTheme } = useTheme()
   const navigate = useNavigate()
@@ -225,7 +225,7 @@ export default function Header() {
   }
 
   return (
-    <header className="fixed top-0 left-64 right-0 z-30 h-16 glass-strong border-b border-white/5 transition-all duration-300">
+    <header className={`fixed top-0 ${sidebarCollapsed ? 'left-20' : 'left-64'} right-0 z-30 h-16 glass-strong border-b border-white/5 transition-all duration-300`}>
       <div className="flex h-full items-center justify-between px-6">
         <div className="relative w-full max-w-xl">
           <div className="relative" ref={searchRef}>

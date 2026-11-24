@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { Outlet } from 'react-router-dom'
 import Sidebar from './Sidebar'
 import Header from './Header'
@@ -9,6 +10,7 @@ import { Loader2 } from 'lucide-react'
 
 function Shell() {
   const { user, loading } = useAuth()
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
 
   if (loading) {
     return (
@@ -24,9 +26,12 @@ function Shell() {
 
   return (
     <div className="min-h-screen bg-gradient-premium">
-      <Sidebar />
-      <div className="transition-all duration-300 ml-64">
-        <Header />
+      <Sidebar
+        collapsed={sidebarCollapsed}
+        onToggle={() => setSidebarCollapsed((collapsed) => !collapsed)}
+      />
+      <div className={`transition-all duration-300 ${sidebarCollapsed ? 'ml-20' : 'ml-64'}`}>
+        <Header sidebarCollapsed={sidebarCollapsed} />
         <main className="pt-20 pb-8">
           <motion.div
             initial={{ opacity: 0, y: 10 }}

@@ -1,4 +1,3 @@
-import { useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { cn } from '../utils/cn'
 import {
@@ -21,8 +20,7 @@ const navItems = [
   { name: 'Settings', icon: Settings, path: '/settings' },
 ]
 
-export default function Sidebar() {
-  const [collapsed, setCollapsed] = useState(false)
+export default function Sidebar({ collapsed, onToggle }) {
   const location = useLocation()
 
   return (
@@ -32,9 +30,19 @@ export default function Sidebar() {
         collapsed ? 'w-20' : 'w-64'
       )}
     >
-      <div className="glass-strong flex h-16 items-center justify-between px-4">
+      <div
+        className={cn(
+          'glass-strong flex h-16 items-center',
+          collapsed ? 'justify-between px-2' : 'justify-between px-4'
+        )}
+      >
         <div className="flex items-center gap-2">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-zinc-100">
+          <div
+            className={cn(
+              'flex items-center justify-center rounded-xl bg-zinc-100',
+              collapsed ? 'h-8 w-8' : 'h-10 w-10'
+            )}
+          >
             <Brain className="h-5 w-5 text-zinc-900" />
           </div>
           {!collapsed && (
@@ -42,9 +50,11 @@ export default function Sidebar() {
           )}
         </div>
         <button
-          onClick={() => setCollapsed(!collapsed)}
-          className="rounded-lg p-1.5 text-slate-400 transition-colors hover:bg-white/5 hover:text-white"
-          aria-label="Toggle sidebar"
+          onClick={onToggle}
+          className="shrink-0 rounded-lg p-1.5 text-slate-400 transition-colors hover:bg-white/5 hover:text-white"
+          aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+          aria-expanded={!collapsed}
+          title={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
         >
           <ChevronLeft
             className={cn('h-4 w-4 transition-transform', collapsed && 'rotate-180')}
@@ -60,6 +70,8 @@ export default function Sidebar() {
             <Link
               key={item.name}
               to={item.path}
+              title={collapsed ? item.name : undefined}
+              aria-current={isActive ? 'page' : undefined}
               className={cn(
                 'group flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all',
                 isActive
