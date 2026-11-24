@@ -401,7 +401,7 @@ export default function Header({ sidebarCollapsed = false }) {
   }
 
   return (
-    <header className={`fixed top-0 ${sidebarCollapsed ? 'left-20' : 'left-64'} right-0 z-30 h-16 glass-strong border-b border-white/5 transition-all duration-300`}>
+    <header className={`fixed top-0 ${sidebarCollapsed ? 'left-20' : 'left-64'} right-0 z-50 h-16 glass-strong border-b border-white/5 transition-all duration-300`}>
       <div className="flex h-full items-center justify-between px-6">
         <div className="relative w-full max-w-xl">
           <div className="relative" ref={searchRef}>
@@ -511,7 +511,7 @@ export default function Header({ sidebarCollapsed = false }) {
             </button>
 
             {notifOpen && (
-              <div className="absolute right-0 mt-2 w-96 glass-strong rounded-xl border border-white/5 shadow-2xl animate-slide-down z-50">
+              <div className="absolute right-0 mt-2 w-96 glass-strong rounded-xl border border-white/5 shadow-2xl animate-slide-down z-[60]">
                 <div className="flex items-center justify-between px-4 py-3 border-b border-white/5">
                   <h3 className="text-sm font-semibold text-slate-200">Notifications</h3>
                   {unreadCount > 0 && (
