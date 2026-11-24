@@ -10,6 +10,11 @@ import { api } from '../utils/api'
 import { mockPapers, mockAgents, mockTimeline, mockResults } from '../data/mockData'
 import { Sparkles, BookOpen, FileDown, Share2, Loader2, AlertCircle } from 'lucide-react'
 import { downloadReportPdf } from '../utils/reportExport'
+import {
+  getDefaultResearchQuestion,
+  notifyAnalysisFailed,
+  notifyReportGenerated,
+} from '../utils/notificationPreferences'
 
 export default function Dashboard() {
   const [uploadedFiles, setUploadedFiles] = useState([])
@@ -21,7 +26,7 @@ export default function Dashboard() {
   const [activeAgentId, setActiveAgentId] = useState(null)
   const [activeTab, setActiveTab] = useState('overview')
   const [currentTime, setCurrentTime] = useState(new Date())
-  const [researchQuestion, setResearchQuestion] = useState('How have transformer architectures evolved to handle longer sequences and improve efficiency?')
+  const [researchQuestion, setResearchQuestion] = useState(getDefaultResearchQuestion)
   const [error, setError] = useState(null)
   const [recentAnalyses, setRecentAnalyses] = useState([])
   const [isDemo, setIsDemo] = useState(false)
@@ -71,10 +76,21 @@ export default function Dashboard() {
             clearInterval(pollingInterval.current)
             const report = await api.getAnalysisReport(analysisId)
             setAnalysisStatus(prev => ({ ...prev, report: report.report }))
+            if (report.report) {
+              notifyReportGenerated({
+                analysisId,
+                researchQuestion: status.research_question,
+              })
+            }
           } else if (status.status === 'error') {
             setIsAnalyzing(false)
             setError(status.error)
             clearInterval(pollingInterval.current)
+            notifyAnalysisFailed({
+              analysisId,
+              researchQuestion: status.research_question,
+              error: status.error,
+            })
           }
         } catch (err) {
           console.error('Polling error:', err)
@@ -127,6 +143,10 @@ export default function Dashboard() {
       current_stage: 'Analysis complete!',
       agents: mockAgents,
       report: mockResults
+    })
+    notifyReportGenerated({
+      researchQuestion,
+      isDemo: true,
     })
   }
 
@@ -182,8 +202,19 @@ export default function Dashboard() {
         api.getAnalysisReport(id),
       ])
       setAnalysisStatus({ ...status, report: reportRes.report })
+      if (reportRes.report) {
+        notifyReportGenerated({
+          analysisId: id,
+          researchQuestion: status.research_question || researchQuestion,
+        })
+      }
     } catch (err) {
       setError(err.message)
+      notifyAnalysisFailed({
+        analysisId: id,
+        researchQuestion,
+        error: err.message,
+      })
     } finally {
       setIsAnalyzing(false)
       setIsSimulating(false)
@@ -203,6 +234,10 @@ export default function Dashboard() {
           current_stage: 'Analysis complete!',
           agents: mockAgents,
           report: mockResults
+        })
+        notifyReportGenerated({
+          researchQuestion,
+          isDemo: true,
         })
       }, 3000)
       return
@@ -224,6 +259,10 @@ export default function Dashboard() {
     } catch (err) {
       setIsAnalyzing(false)
       setError(err.message)
+      notifyAnalysisFailed({
+        researchQuestion,
+        error: err.message,
+      })
     }
   }
 

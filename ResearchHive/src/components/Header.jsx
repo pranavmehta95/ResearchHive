@@ -20,6 +20,52 @@ import { useAuth } from '../context/AuthContext'
 import { useTheme } from '../context/ThemeContext'
 import { api } from '../utils/api'
 import { mockPapers } from '../data/mockData'
+import {
+  ANALYSIS_FAILED_EVENT,
+  NOTIFICATION_PREFERENCES_EVENT,
+  REPORT_GENERATED_EVENT,
+  getNotificationPreferences,
+} from '../utils/notificationPreferences'
+
+const REPORT_NOTIFICATIONS_STORAGE_KEY = 'rh_report_notifications'
+
+const starterNotifications = [
+  {
+    id: 'starter-welcome',
+    category: 'starter',
+    title: 'Welcome to ResearchHive',
+    body: 'Your research workspace is ready. Set a default question in Settings.',
+    time: 'Getting started',
+    path: '/settings',
+  },
+  {
+    id: 'starter-demo',
+    category: 'starter',
+    title: 'Explore a sample report',
+    body: 'Open the demo report to see a completed literature review.',
+    time: 'Starter tip',
+    path: '/demo-report',
+  },
+  {
+    id: 'starter-export',
+    category: 'starter',
+    title: 'Export your findings',
+    body: 'Completed reports can be downloaded as a branded PDF.',
+    time: 'Starter tip',
+    path: '/demo-report',
+  },
+]
+
+function getStoredReportNotifications() {
+  try {
+    const stored = JSON.parse(
+      localStorage.getItem(REPORT_NOTIFICATIONS_STORAGE_KEY) || '[]'
+    )
+    return Array.isArray(stored) ? stored : []
+  } catch {
+    return []
+  }
+}
 
 const quickLinks = [
   { label: 'Dashboard', path: '/', icon: BarChart3 },
@@ -61,6 +107,13 @@ export default function Header({ sidebarCollapsed = false }) {
   const [activeIndex, setActiveIndex] = useState(0)
   const [analyses, setAnalyses] = useState([])
   const [notifOpen, setNotifOpen] = useState(false)
+  const [reportNotifications, setReportNotifications] = useState(
+    getStoredReportNotifications
+  )
+  const [notificationPreferences, setNotificationPreferences] = useState(
+    getNotificationPreferences
+  )
+  const [notificationToast, setNotificationToast] = useState(null)
   const [readIds, setReadIds] = useState(() => {
     try {
       return new Set(JSON.parse(localStorage.getItem('rh_read_notifs') || '[]'))
@@ -90,6 +143,99 @@ export default function Header({ sidebarCollapsed = false }) {
       localStorage.setItem('rh_read_notifs', JSON.stringify([...readIds]))
     } catch {}
   }, [readIds])
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(
+        REPORT_NOTIFICATIONS_STORAGE_KEY,
+        JSON.stringify(reportNotifications)
+      )
+    } catch {}
+  }, [reportNotifications])
+
+  useEffect(() => {
+    const handleReportGenerated = (event) => {
+      const detail = event.detail || {}
+      const createdAt = new Date().toISOString()
+      const id = detail.isDemo
+        ? `generated-demo-${Date.now()}`
+        : `generated-${detail.analysisId || Date.now()}`
+      const notification = {
+        id,
+        analysisId: detail.analysisId || null,
+        category: 'completed',
+        title: 'Report generated',
+        body: detail.researchQuestion || 'Your literature review is ready.',
+        time: new Date(createdAt).toLocaleString(),
+        createdAt,
+        path: detail.isDemo
+          ? '/demo-report'
+          : detail.analysisId
+            ? `/reports/${detail.analysisId}`
+            : null,
+      }
+
+      setReportNotifications((previous) =>
+        [notification, ...previous.filter((item) => item.id !== id)].slice(0, 20)
+      )
+      setReadIds((previous) => {
+        const next = new Set(previous)
+        next.delete(id)
+        return next
+      })
+      if (notificationPreferences.reportCompleted) {
+        setNotificationToast(notification)
+      }
+    }
+
+    const handleAnalysisFailed = (event) => {
+      const detail = event.detail || {}
+      const createdAt = new Date().toISOString()
+      const id = `failed-${detail.analysisId || Date.now()}`
+      const notification = {
+        id,
+        analysisId: detail.analysisId || null,
+        category: 'failed',
+        title: 'Analysis failed',
+        body: detail.error || detail.researchQuestion || 'An analysis could not be completed.',
+        time: new Date(createdAt).toLocaleString(),
+        createdAt,
+        path: null,
+      }
+
+      setReportNotifications((previous) =>
+        [notification, ...previous.filter((item) => item.id !== id)].slice(0, 20)
+      )
+      if (notificationPreferences.reportFailed) {
+        setNotificationToast(notification)
+      }
+    }
+
+    const handlePreferencesChanged = () => {
+      setNotificationPreferences(getNotificationPreferences())
+    }
+
+    window.addEventListener(REPORT_GENERATED_EVENT, handleReportGenerated)
+    window.addEventListener(ANALYSIS_FAILED_EVENT, handleAnalysisFailed)
+    window.addEventListener(
+      NOTIFICATION_PREFERENCES_EVENT,
+      handlePreferencesChanged
+    )
+    return () => {
+      window.removeEventListener(REPORT_GENERATED_EVENT, handleReportGenerated)
+      window.removeEventListener(ANALYSIS_FAILED_EVENT, handleAnalysisFailed)
+      window.removeEventListener(
+        NOTIFICATION_PREFERENCES_EVENT,
+        handlePreferencesChanged
+      )
+    }
+  }, [notificationPreferences])
+
+  useEffect(() => {
+    if (!notificationToast) return undefined
+    const timeout = window.setTimeout(() => setNotificationToast(null), 7000)
+    return () => window.clearTimeout(timeout)
+  }, [notificationToast])
 
   useEffect(() => {
     function handleClickOutside(event) {
@@ -192,12 +338,24 @@ export default function Header({ sidebarCollapsed = false }) {
   }
 
   const notifications = useMemo(() => {
-    return analyses
+    const generatedAnalysisIds = new Set(
+      reportNotifications
+        .map((notification) => notification.analysisId)
+        .filter(Boolean)
+    )
+    const analysisItems = analyses
+      .filter((analysis) => !generatedAnalysisIds.has(analysis.analysis_id))
       .map((a) => {
         const id = `n-${a.analysis_id}`
         const status = a.status || 'unknown'
         return {
           id,
+          category:
+            status === 'completed'
+              ? 'completed'
+              : status === 'error'
+                ? 'failed'
+                : 'progress',
           title:
             status === 'completed'
               ? 'Analysis completed'
@@ -206,11 +364,29 @@ export default function Header({ sidebarCollapsed = false }) {
                 : 'Analysis in progress',
           body: a.research_question || 'Untitled analysis',
           time: a.started_at ? new Date(a.started_at).toLocaleString() : '',
+          createdAt: a.started_at || '',
           path: status === 'completed' ? `/reports/${a.analysis_id}` : null,
         }
       })
-      .sort((x, y) => (y.time || '').localeCompare(x.time || ''))
-  }, [analyses])
+    return [...reportNotifications, ...analysisItems, ...starterNotifications]
+      .filter((notification) => {
+        if (notification.category === 'completed') {
+          return notificationPreferences.reportCompleted
+        }
+        if (notification.category === 'failed') {
+          return notificationPreferences.reportFailed
+        }
+        if (notification.category === 'starter') {
+          return notificationPreferences.starterNotifications
+        }
+        return true
+      })
+      .sort(
+        (x, y) =>
+          (Date.parse(y.createdAt || '') || 0) -
+          (Date.parse(x.createdAt || '') || 0)
+      )
+  }, [analyses, notificationPreferences, reportNotifications])
 
   const unreadCount = notifications.filter((n) => !readIds.has(n.id)).length
 
@@ -351,7 +527,7 @@ export default function Header({ sidebarCollapsed = false }) {
                 <div className="max-h-96 overflow-y-auto p-2">
                   {notifications.length === 0 && (
                     <p className="px-3 py-6 text-sm text-slate-500 text-center">
-                      No notifications yet. Completed analyses will show up here.
+                      No notifications to show. Review your notification settings.
                     </p>
                   )}
                   {notifications.map((n) => {
@@ -439,6 +615,44 @@ export default function Header({ sidebarCollapsed = false }) {
           </div>
         </div>
       </div>
+      {notificationToast && (
+        <div
+          role="status"
+          aria-live="polite"
+          className="absolute right-4 top-full z-50 mt-2 w-80 rounded-xl border border-white/10 glass-strong p-4 shadow-2xl"
+        >
+          <div className="flex items-start justify-between gap-3">
+            <div className="min-w-0">
+              <p className="text-sm font-semibold text-slate-100">
+                {notificationToast.title}
+              </p>
+              <p className="mt-1 text-xs text-slate-400 line-clamp-2">
+                {notificationToast.body}
+              </p>
+              {notificationToast.path && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    handleNotifClick(notificationToast)
+                    setNotificationToast(null)
+                  }}
+                  className="mt-3 text-xs font-medium text-violet-300 hover:text-violet-200"
+                >
+                  View
+                </button>
+              )}
+            </div>
+            <button
+              type="button"
+              onClick={() => setNotificationToast(null)}
+              className="shrink-0 text-xs text-slate-500 hover:text-slate-200"
+              aria-label="Dismiss notification"
+            >
+              Dismiss
+            </button>
+          </div>
+        </div>
+      )}
     </header>
   )
 }
