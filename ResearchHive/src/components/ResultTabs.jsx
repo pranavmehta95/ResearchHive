@@ -22,6 +22,8 @@ import {
   ResponsiveContainer,
   Tooltip,
 } from 'recharts'
+import { useTheme } from '../context/ThemeContext'
+import { chartColors } from '../utils/chartTheme'
 
 export default function ResultTabs({ results, activeTab, onTabChange, papers }) {
   const tabs = [
@@ -216,6 +218,8 @@ function PaperInsightsTab({ insights, papers }) {
 }
 
 function ComparisonTab({ comparison, papers }) {
+  const { theme } = useTheme()
+  const cc = chartColors(theme)
   return (
     <motion.div
       initial={{ opacity: 0, y: 10 }}
@@ -228,15 +232,13 @@ function ComparisonTab({ comparison, papers }) {
         <div className="h-80 w-full">
           <ResponsiveContainer width="100%" height="100%">
             <RadarChart cx="50%" cy="50%" outerRadius="80%" data={comparison.radarData}>
-              <PolarGrid stroke="rgba(255,255,255,0.1)" />
-              <PolarAngleAxis dataKey="subject" stroke="#94a3b8" tick={{ fill: '#94a3b8', fontSize: 11 }} />
-              <PolarRadiusAxis stroke="rgba(255,255,255,0.1)" />
-              <Radar name="Innovation" dataKey="Innovation" stroke="#d4d4d8" fill="#d4d4d8" fillOpacity={0.3} />
-              <Radar name="Scalability" dataKey="Scalability" stroke="#a1a1aa" fill="#a1a1aa" fillOpacity={0.3} />
-              <Radar name="Efficiency" dataKey="Efficiency" stroke="#52525b" fill="#52525b" fillOpacity={0.3} />
-              <Tooltip
-                contentStyle={{ background: '#0f172a', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '0.75rem', color: '#fff' }}
-              />
+              <PolarGrid stroke={cc.grid} />
+              <PolarAngleAxis dataKey="subject" stroke={cc.axis} tick={{ fill: cc.axis, fontSize: 11 }} />
+              <PolarRadiusAxis stroke={cc.grid} />
+              <Radar name="Innovation" dataKey="Innovation" stroke={cc.radar[0]} fill={cc.radar[0]} fillOpacity={0.3} />
+              <Radar name="Scalability" dataKey="Scalability" stroke={cc.radar[1]} fill={cc.radar[1]} fillOpacity={0.3} />
+              <Radar name="Efficiency" dataKey="Efficiency" stroke={cc.radar[2]} fill={cc.radar[2]} fillOpacity={0.3} />
+              <Tooltip contentStyle={cc.tooltip} />
             </RadarChart>
           </ResponsiveContainer>
         </div>

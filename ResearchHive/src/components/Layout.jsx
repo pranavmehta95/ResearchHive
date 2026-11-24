@@ -3,6 +3,7 @@ import Sidebar from './Sidebar'
 import Header from './Header'
 import Login from '../pages/Login'
 import { AuthProvider, useAuth } from '../context/AuthContext'
+import { ThemeProvider } from '../context/ThemeContext'
 import { motion } from 'framer-motion'
 import { Loader2 } from 'lucide-react'
 
@@ -43,8 +44,10 @@ function Shell() {
 
 export default function Layout() {
   return (
-    <AuthProvider>
-      <Shell />
-    </AuthProvider>
+    <ThemeProvider>
+      <AuthProvider>
+        <Shell />
+      </AuthProvider>
+    </ThemeProvider>
   )
 }

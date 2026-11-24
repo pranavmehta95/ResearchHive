@@ -1,4 +1,5 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect } from 'react'
+import { useParams } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { cn } from '../utils/cn'
 import {
@@ -39,6 +40,11 @@ import {
 } from 'recharts'
 import { jsPDF } from 'jspdf'
 import { mockPapers, mockResults } from '../data/mockData'
+import { api } from '../utils/api'
+import { normalizeReportData } from '../utils/reportData'
+import { chartColors } from '../utils/chartTheme'
+import { useTheme } from '../context/ThemeContext'
+import { Loader2, AlertCircle } from 'lucide-react'
 
 // Demo mode data
 const demoPapers = [
@@ -135,12 +141,71 @@ The consensus across these works is that hybrid models combining multiple featur
 }
 
 export default function Report({ papers: initialPapers, results: initialResults, isDemo = false }) {
+  const { analysisId } = useParams()
   const [activeSection, setActiveSection] = useState('overview')
   const [copiedItem, setCopiedItem] = useState(null)
+  const [fetched, setFetched] = useState(null)
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState(null)
 
-  // Use demo data if in demo mode, otherwise use passed data
-  const papers = isDemo ? demoPapers : (initialPapers || mockPapers)
-  const results = isDemo ? demoResults : (initialResults || mockResults)
+  useEffect(() => {
+    if (isDemo || !analysisId) return
+    let cancelled = false
+    setLoading(true)
+    setError(null)
+    Promise.all([api.getAnalysisStatus(analysisId), api.getAnalysisReport(analysisId)])
+      .then(([status, reportRes]) => {
+        if (cancelled) return
+        const report = reportRes?.report ?? reportRes ?? {}
+        const papers = status?.papers?.length ? status.papers : []
+        setFetched(
+          normalizeReportData(report, papers, status?.research_question || '')
+        )
+      })
+      .catch((err) => {
+        if (!cancelled) setError(err.message)
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false)
+      })
+    return () => {
+      cancelled = true
+    }
+  }, [analysisId, isDemo])
+
+  // Use demo data if in demo mode, fetched data for real analyses,
+  // otherwise fall back to passed/mock data.
+  const papers = isDemo
+    ? demoPapers
+    : fetched?.papers?.length
+      ? fetched.papers
+      : initialPapers || mockPapers
+  const results = isDemo
+    ? demoResults
+    : fetched?.results || initialResults || mockResults
+
+  if (loading && !fetched) {
+    return (
+      <div className="min-h-[60vh] flex flex-col items-center justify-center gap-3 text-slate-400">
+        <Loader2 className="h-8 w-8 animate-spin" />
+        <p className="text-sm">Loading analysis report...</p>
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-[60vh] flex items-center justify-center">
+        <div className="glass-strong rounded-2xl p-8 border border-white/5 flex items-center gap-3 text-red-400 max-w-md">
+          <AlertCircle className="h-6 w-6 shrink-0" />
+          <div>
+            <p className="font-medium">Failed to load report</p>
+            <p className="text-sm text-slate-400 mt-1">{error}</p>
+          </div>
+        </div>
+      </div>
+    )
+  }
 
   const downloadPDF = () => {
     const doc = new jsPDF()
@@ -355,6 +420,8 @@ export default function Report({ papers: initialPapers, results: initialResults,
 
 // Section Components
 function OverviewSection({ results, papers }) {
+  const { theme } = useTheme()
+  const cc = chartColors(theme)
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -411,18 +478,15 @@ function OverviewSection({ results, papers }) {
         <div className="h-80 w-full">
           <ResponsiveContainer width="100%" height="100%">
             <RadarChart cx="50%" cy="50%" outerRadius="80%" data={results.comparison?.radarData || []}>
-              <PolarGrid stroke="rgba(255,255,255,0.08)" />
-              <PolarAngleAxis dataKey="subject" stroke="#94a3b8" tick={{ fill: '#94a3b8', fontSize: 11 }} />
-              <PolarRadiusAxis stroke="rgba(255,255,255,0.08)" domain={[0, 100]} tickCount={5} />
-              <Radar name="Novelty" dataKey="Novelty" stroke="#fafafa" fill="#fafafa" fillOpacity={0.15} />
-              <Radar name="Methodology" dataKey="Methodology" stroke="#d4d4d8" fill="#d4d4d8" fillOpacity={0.15} />
-              <Radar name="Datasets" dataKey="Datasets" stroke="#a1a1aa" fill="#a1a1aa" fillOpacity={0.15} />
-              <Radar name="Evaluation" dataKey="Evaluation" stroke="#71717a" fill="#71717a" fillOpacity={0.15} />
-              <Radar name="Impact" dataKey="Impact" stroke="#52525b" fill="#52525b" fillOpacity={0.15} />
-              <Tooltip
-                contentStyle={{ background: '#141416', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '0.75rem', color: '#fff' }}
-                labelFormatter={(label) => label}
-              />
+              <PolarGrid stroke={cc.grid} />
+              <PolarAngleAxis dataKey="subject" stroke={cc.axis} tick={{ fill: cc.axis, fontSize: 11 }} />
+              <PolarRadiusAxis stroke={cc.grid} domain={[0, 100]} tickCount={5} />
+              <Radar name="Novelty" dataKey="Novelty" stroke={cc.radar[0]} fill={cc.radar[0]} fillOpacity={0.15} />
+              <Radar name="Methodology" dataKey="Methodology" stroke={cc.radar[1]} fill={cc.radar[1]} fillOpacity={0.15} />
+              <Radar name="Datasets" dataKey="Datasets" stroke={cc.radar[2]} fill={cc.radar[2]} fillOpacity={0.15} />
+              <Radar name="Evaluation" dataKey="Evaluation" stroke={cc.radar[3]} fill={cc.radar[3]} fillOpacity={0.15} />
+              <Radar name="Impact" dataKey="Impact" stroke={cc.radar[4]} fill={cc.radar[4]} fillOpacity={0.15} />
+              <Tooltip contentStyle={cc.tooltip} labelFormatter={(label) => label} />
             </RadarChart>
           </ResponsiveContainer>
         </div>
@@ -521,6 +585,8 @@ function SummariesSection({ results, papers, copyToClipboard, copiedItem }) {
 }
 
 function ComparisonSection({ results, papers }) {
+  const { theme } = useTheme()
+  const cc = chartColors(theme)
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -537,18 +603,16 @@ function ComparisonSection({ results, papers }) {
         <div className="h-80 w-full mb-8">
           <ResponsiveContainer width="100%" height="100%">
             <RadarChart cx="50%" cy="50%" outerRadius="80%" data={results.comparison?.radarData || []}>
-              <PolarGrid stroke="rgba(255,255,255,0.08)" />
-              <PolarAngleAxis dataKey="subject" stroke="#94a3b8" tick={{ fill: '#94a3b8', fontSize: 11 }} />
-              <PolarRadiusAxis stroke="rgba(255,255,255,0.08)" domain={[0, 100]} />
-              <Radar name="Novelty" dataKey="Novelty" stroke="#fafafa" fill="#fafafa" fillOpacity={0.15} />
-              <Radar name="Methodology" dataKey="Methodology" stroke="#d4d4d8" fill="#d4d4d8" fillOpacity={0.15} />
-              <Radar name="Datasets" dataKey="Datasets" stroke="#a1a1aa" fill="#a1a1aa" fillOpacity={0.15} />
-              <Radar name="Evaluation" dataKey="Evaluation" stroke="#71717a" fill="#71717a" fillOpacity={0.15} />
-              <Radar name="Impact" dataKey="Impact" stroke="#52525b" fill="#52525b" fillOpacity={0.15} />
-              <Tooltip
-                contentStyle={{ background: '#141416', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '0.75rem', color: '#fff' }}
-              />
-              <Legend />
+              <PolarGrid stroke={cc.grid} />
+              <PolarAngleAxis dataKey="subject" stroke={cc.axis} tick={{ fill: cc.axis, fontSize: 11 }} />
+              <PolarRadiusAxis stroke={cc.grid} domain={[0, 100]} />
+              <Radar name="Novelty" dataKey="Novelty" stroke={cc.radar[0]} fill={cc.radar[0]} fillOpacity={0.15} />
+              <Radar name="Methodology" dataKey="Methodology" stroke={cc.radar[1]} fill={cc.radar[1]} fillOpacity={0.15} />
+              <Radar name="Datasets" dataKey="Datasets" stroke={cc.radar[2]} fill={cc.radar[2]} fillOpacity={0.15} />
+              <Radar name="Evaluation" dataKey="Evaluation" stroke={cc.radar[3]} fill={cc.radar[3]} fillOpacity={0.15} />
+              <Radar name="Impact" dataKey="Impact" stroke={cc.radar[4]} fill={cc.radar[4]} fillOpacity={0.15} />
+              <Tooltip contentStyle={cc.tooltip} />
+              <Legend wrapperStyle={{ color: cc.axis }} />
             </RadarChart>
           </ResponsiveContainer>
         </div>
@@ -639,6 +703,8 @@ function FindingsSection({ results, papers, copyToClipboard, copiedItem }) {
 }
 
 function GapsSection({ results, papers }) {
+  const { theme } = useTheme()
+  const cc = chartColors(theme)
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -661,15 +727,12 @@ function GapsSection({ results, papers }) {
               name: g.title.length > 25 ? g.title.substring(0, 25) + '...' : g.title,
               severity: g.severity === 'high' ? 100 : g.severity === 'medium' ? 65 : 30,
               fullTitle: g.title,
-              related: g.relatedPapers.length
+              related: (g.relatedPapers || []).length
             })) || []} layout="vertical">
-              <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
-              <XAxis type="number" domain={[0, 100]} tick={{ fill: '#94a3b8', fontSize: 11 }} tickFormatter={(v) => v > 0 ? `${v}%` : ''} />
-              <YAxis dataKey="name" type="category" tick={{ fill: '#94a3b8', fontSize: 11 }} width={280} />
-              <RechartsTooltip
-                contentStyle={{ background: '#141416', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '0.75rem', color: '#fff' }}
-                formatter={(value, name) => [`${value}% Priority`, '']}
-              />
+              <CartesianGrid strokeDasharray="3 3" stroke={cc.gridFaint} />
+              <XAxis type="number" domain={[0, 100]} tick={{ fill: cc.axis, fontSize: 11 }} tickFormatter={(v) => v > 0 ? `${v}%` : ''} />
+              <YAxis dataKey="name" type="category" tick={{ fill: cc.axis, fontSize: 11 }} width={280} />
+              <RechartsTooltip contentStyle={cc.tooltip} formatter={(value, name) => [`${value}% Priority`, '']} />
               <Bar dataKey="severity" fill="#f59e0b" radius={[0, 4, 4, 0]} />
               <Cell fill="#ef4444" />
             </BarChart>
@@ -719,7 +782,7 @@ function GapsSection({ results, papers }) {
             <div className="space-y-3 pt-3 border-t border-white/5">
               <h4 className="text-xs font-semibold uppercase tracking-wider text-slate-400">Future Research Directions</h4>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                {gap.potentialDirections.map((dir, i) => (
+                {(gap.potentialDirections || []).map((dir, i) => (
                   <div key={i} className="flex items-center gap-2 p-2.5 rounded-xl bg-white/5 text-xs text-slate-300">
                     <Target className="h-3.5 w-3.5 text-amber-400 shrink-0" />
                     <span>{dir}</span>

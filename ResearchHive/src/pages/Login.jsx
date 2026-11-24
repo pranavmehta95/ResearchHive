@@ -1,10 +1,12 @@
 import { useState } from 'react'
 import { motion } from 'framer-motion'
-import { Brain, Loader2, AlertCircle } from 'lucide-react'
+import { Brain, Loader2, AlertCircle, Sun, Moon } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
+import { useTheme } from '../context/ThemeContext'
 
 export default function Login() {
   const { login, register } = useAuth()
+  const { theme, toggleTheme } = useTheme()
   const [mode, setMode] = useState('login') // 'login' | 'register'
   const [loginId, setLoginId] = useState('')
   const [username, setUsername] = useState('')
@@ -35,6 +37,13 @@ export default function Login() {
 
   return (
     <div className="min-h-screen bg-[#141416] flex items-center justify-center p-6">
+      <button
+        onClick={toggleTheme}
+        className="fixed top-4 right-4 rounded-lg p-2 glass text-slate-400 hover:text-white hover:bg-white/10 transition-colors"
+        aria-label="Toggle theme"
+      >
+        {theme === 'dark' ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
+      </button>
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
