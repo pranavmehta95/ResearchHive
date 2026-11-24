@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { motion } from 'framer-motion'
-import { Brain, Loader2, AlertCircle, Sun, Moon } from 'lucide-react'
+import { Loader2, AlertCircle, Sun, Moon } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 import { useTheme } from '../context/ThemeContext'
 
@@ -53,7 +53,11 @@ export default function Login() {
         <div className="glass-strong rounded-2xl p-8 border border-white/5">
           <div className="flex items-center gap-3 mb-8">
             <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-zinc-100">
-              <Brain className="h-5 w-5 text-zinc-900" />
+              <img
+                src="/researchhive-mark.png"
+                alt="ResearchHive"
+                className="h-full w-full object-contain"
+              />
             </div>
             <div>
               <h1 className="text-xl font-bold text-zinc-100">ResearchHive</h1>

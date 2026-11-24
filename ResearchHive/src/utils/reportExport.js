@@ -1,4 +1,5 @@
 import { jsPDF } from 'jspdf'
+import researchHiveLogo from '../assets/researchhive-logo.jpg?inline'
 
 export function downloadReportPdf(papers, results) {
   const doc = new jsPDF({ format: 'a4', unit: 'mm' })
@@ -18,18 +19,13 @@ export function downloadReportPdf(papers, results) {
   const drawPageHeader = () => {
     doc.setFillColor(...palette.ink)
     doc.rect(0, 0, pageWidth, 28, 'F')
-    doc.setFillColor(...palette.accent)
-    doc.roundedRect(margin, 7, 14, 14, 3, 3, 'F')
-    doc.setFont('helvetica', 'bold')
-    doc.setFontSize(9)
-    doc.setTextColor(...palette.white)
-    doc.text('RH', margin + 7, 16, { align: 'center' })
-    doc.setFontSize(11)
-    doc.text('RESEARCHHIVE', margin + 19, 13)
+    doc.setFillColor(...palette.white)
+    doc.roundedRect(margin, 1.5, 46, 25, 2, 2, 'F')
+    doc.addImage(researchHiveLogo, 'JPEG', margin + 1, 1.7, 44, 24.6)
     doc.setFont('helvetica', 'normal')
     doc.setFontSize(8)
     doc.setTextColor(205, 205, 215)
-    doc.text('LITERATURE REVIEW', margin + 19, 19)
+    doc.text('MULTI-AGENT LITERATURE REVIEW', margin + 53, 16)
   }
 
   const newPage = () => {

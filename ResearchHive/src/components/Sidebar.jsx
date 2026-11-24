@@ -1,14 +1,12 @@
 import { Link, useLocation } from 'react-router-dom'
 import { cn } from '../utils/cn'
 import {
-  Brain,
   FileText,
   Search,
   BarChart3,
   FolderKanban,
   Settings,
   ChevronLeft,
-  Menu,
   Sparkles,
 } from 'lucide-react'
 
@@ -43,7 +41,11 @@ export default function Sidebar({ collapsed, onToggle }) {
               collapsed ? 'h-8 w-8' : 'h-10 w-10'
             )}
           >
-            <Brain className="h-5 w-5 text-zinc-900" />
+            <img
+              src="/researchhive-mark.png"
+              alt="ResearchHive"
+              className="h-full w-full object-contain"
+            />
           </div>
           {!collapsed && (
             <span className="text-lg font-bold tracking-tight text-gradient">ResearchHive</span>
